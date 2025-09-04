@@ -32,9 +32,9 @@ void ASoftDesignTrainingCharacter::MoveForward(float Value, float DeltaTime)
     AddMovementInput(GetActorForwardVector(), Value);
 
  
-    auto DirVelocity = GetMovementComponent()->Velocity.GetSafeNormal();
+    //auto DirVelocity = GetMovementComponent()->Velocity.GetSafeNormal();
 
-    AddMovementInput(-DirVelocity, 0.5 * Value);
+    //AddMovementInput(-DirVelocity, 0.5 * Value);
     
     //float Acceleration = 20;
     //
