@@ -23,30 +23,6 @@ void ASoftDesignTrainingCharacter::BeginPlay()
     m_StartingPosition = GetActorLocation();
 }
 
-void ASoftDesignTrainingCharacter::MoveForward(float Value, float DeltaTime)
-{
-    //FRotator ControlRot(GetControlRotation());
-    //ControlRot.Pitch = 0.0f;
-    //ControlRot.Roll = 0.0f;
-
-    AddMovementInput(GetActorForwardVector(), Value);
-
- 
-    //auto DirVelocity = GetMovementComponent()->Velocity.GetSafeNormal();
-
-    //AddMovementInput(-DirVelocity, 0.5 * Value);
-    
-    //float Acceleration = 20;
-    //
-    //auto DirVelocity = GetMovementComponent()->Velocity.GetSafeNormal();
-    //GetMovementComponent()->Velocity = FVector::Zero();// += Acceleration * DirVelocity * DeltaTime;
-    //
-    //auto V = GetMovementComponent()->Velocity;
-    //
-    //UE_LOG(LogTemp, Warning, TEXT("MyValue is: %f , %f, %f"), V.X, V.Y, V.Z);
-
-}
-
 void ASoftDesignTrainingCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
     if (OtherComponent->GetCollisionObjectType() == COLLISION_DEATH_OBJECT)
@@ -71,6 +47,5 @@ void ASoftDesignTrainingCharacter::OnBeginOverlap(UPrimitiveComponent* Overlappe
 
 void ASoftDesignTrainingCharacter::Tick(float DeltaTime)
 {
-    Super::Tick(DeltaTime);
-    MoveForward(1, DeltaTime);
+    Super::Tick(DeltaTime);   
 }
