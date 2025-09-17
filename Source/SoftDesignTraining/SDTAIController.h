@@ -7,6 +7,7 @@
 
 #include "SDTAIController.generated.h"
 
+class USDTStateMachine;
 /**
  * 
  */
@@ -20,11 +21,16 @@ class SOFTDESIGNTRAINING_API ASDTAIController : public AAIController
 
 public:
 
+    ASDTAIController(const FObjectInitializer& ObjectInitializer);
+
     virtual void BeginPlay() override;
 
     virtual void Tick(float deltaTime) override;
 
 private:
+
+    UPROPERTY()
+    TObjectPtr<USDTStateMachine> StateMachine;
 
     TArray<float> V;      // {1,2,3}
     FRandomStream RNG;    // deterministic stream (seeded in BeginPlay)

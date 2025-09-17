@@ -6,6 +6,14 @@
 #include "Algo/RandomShuffle.h"
 #include "HAL/PlatformTime.h" // for FPlatformTime::Cycles
 
+#include "SDTStateMachine.h"
+
+ASDTAIController::ASDTAIController(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
+{
+    StateMachine = CreateDefaultSubobject<USDTStateMachine>("AIStateMachine");
+}
+
 void ASDTAIController::BeginPlay()
 {
     Super::BeginPlay();
@@ -101,6 +109,11 @@ void ASDTAIController::Tick(float deltaTime)
     //UE_LOG(LogTemp, Warning, TEXT("MyValue is: %f , %f, %f"), 0.0f, 0.0f, 0.0f);
 
 	Super::Tick(deltaTime);
+
+    if (StateMachine)
+    {
+        StateMachine->Run();
+    }
 }
 
 
