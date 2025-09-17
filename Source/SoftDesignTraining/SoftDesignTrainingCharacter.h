@@ -15,8 +15,6 @@ public:
     virtual void BeginPlay() override;
     virtual void OnCollectPowerUp() {};
 
-    void MoveForward(float Value, float DeltaTime);
-
     void Tick(float DeltaTime);
 
 protected:
