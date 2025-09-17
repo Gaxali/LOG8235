@@ -16,8 +16,11 @@ class SOFTDESIGNTRAINING_API ASDTAIController : public AAIController
 {
     GENERATED_BODY()
 
-    void AvoidObstacle();
-    bool AddMovementToAvoidObstacle(float AngleDegrees, float Length);
+    /////
+    void AddMovement(FVector NewDirection);
+    bool TestRaycast(float AngleDegrees, float Length, FVector& ImpactNormalOutput);
+    void NavigationPatrol();
+    /////
 
 public:
 
@@ -32,6 +35,4 @@ private:
     UPROPERTY()
     TObjectPtr<USDTStateMachine> StateMachine;
 
-    TArray<float> V;      // {1,2,3}
-    FRandomStream RNG;    // deterministic stream (seeded in BeginPlay)
 };

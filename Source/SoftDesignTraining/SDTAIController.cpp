@@ -25,27 +25,23 @@ void ASDTAIController::BeginPlay()
         ACharacter* CharacterAI = Cast<ACharacter>(AIPawn);
         CharacterAI->GetCharacterMovement()->MaxWalkSpeed = 500.0f;
     }
-
-    V = { -30, -10, 10, 30 };
-
-    uint64 Seed = FPlatformTime::Cycles64() ^ (uint64)this;
-    RNG.Initialize((int32)(Seed & 0xFFFFFFFF));
 }
 
-bool ASDTAIController::AddMovementToAvoidObstacle(float AngleDegrees, float Length)
+bool ASDTAIController::TestRaycast(float AngleDegrees, float Length, FVector& ImpactNormalOutput)
 {
-    FCollisionObjectQueryParams QueryParams(FCollisionObjectQueryParams::AllStaticObjects);
+    bool Success = false;
 
+    FCollisionObjectQueryParams QueryParams(FCollisionObjectQueryParams::AllStaticObjects);
     FHitResult Result;
 
-    auto ForwardVector = GetPawn() -> GetActorForwardVector();
+    auto ForwardVector = GetPawn()->GetActorForwardVector();
 
     FVector Up(0, 0, 1);
     FVector VectorRotated = ForwardVector.RotateAngleAxis(AngleDegrees, Up);
 
     auto PositionStart = GetPawn()->GetActorLocation();
     auto PositionEnd = GetPawn()->GetActorLocation() + Length * VectorRotated;
-    
+
     bool bHitWorld = GetWorld()->LineTraceSingleByObjectType(Result,
         PositionStart,
         PositionEnd,
@@ -53,59 +49,67 @@ bool ASDTAIController::AddMovementToAvoidObstacle(float AngleDegrees, float Leng
 
     if (bHitWorld)
     {
-        float SignAngle = FMath::Sign(AngleDegrees);
-        auto TangenDirection = SignAngle * FVector::CrossProduct(GetPawn()->GetActorUpVector(), Result.ImpactNormal);
-
-        auto NewDirection = (TangenDirection + Result.ImpactNormal * FMath::Sin(AngleDegrees * 3.141516 / 180)).GetSafeNormal();
-        GetPawn()->AddMovementInput(NewDirection, 1);
-        GetPawn()->SetActorRotation(NewDirection.ToOrientationQuat());
-
-        DrawDebugDirectionalArrow(GetWorld(), PositionStart, PositionEnd, 2, FColor::Red, false);
-        //GetPawn()->AddMovementInput(ResultFront.ImpactNormal, 1);
-        return true;
+        ImpactNormalOutput = Result.ImpactNormal;
+       
+        Success = true;
     }
 
-    return false;
+    DrawDebugDirectionalArrow(GetWorld(), PositionStart, PositionEnd, 2, FColor::Red, false);
+
+    return Success;
 }
 
-void ASDTAIController::AvoidObstacle()
+void ASDTAIController::AddMovement(FVector NewDirection)
 {
-    //for (int32 i = V.Num() - 1; i > 0; --i)
-    //{
-    //    const int32 j = RNG.RandRange(0, i);
-    //    V.Swap(i, j);
-    //}
+    GetPawn()->AddMovementInput(NewDirection, 1);
+    GetPawn()->SetActorRotation(NewDirection.ToOrientationQuat());
+}
 
-    int i = FMath::RandRange(0, V.Num() - 1);
-    int j = FMath::RandRange(0, 1);
-    //V = { -30, -10, 10, 30 };
-    TArray<float> VV({ 150, 100, 75, 50 });
-    TArray<float> VVV({ 50, 75, 100, 150 });
+void ASDTAIController::NavigationPatrol()
+{
+    FVector ImpactNormal1 = FVector::Zero();
+    FVector ImpactNormal2 = FVector::Zero();
 
-    //for (float AngleDegrees : V)
-    //{
-        if (AddMovementToAvoidObstacle(V[i], (j == 0 ? VV[i] : VVV[i])))
-            return;
-    //}
+    float Angle = 30.0f;
+
+    bool CollisionDetectionLeftRay = TestRaycast(-Angle, 150, ImpactNormal1);
+    bool CollisionDetectionRightRay = TestRaycast(Angle, 150, ImpactNormal2);
     
-    //bool IsAvoiding = AddMovementToAvoidObstacle(V[0], 100);
+    if (CollisionDetectionLeftRay && CollisionDetectionRightRay)
+    {
+        FVector TotalDirection = (ImpactNormal1 + ImpactNormal2).GetSafeNormal();
 
-    //if (!IsAvoiding)
-    //    IsAvoiding = AddMovementToAvoidObstacle(V[1], 80);
+        int AngleDeg = FMath::RandRange(-10, 10);
+        FVector Up(0, 0, 1);
+        FVector VectorRotated = TotalDirection.RotateAngleAxis(AngleDeg, Up);
 
-    //if (!IsAvoiding)
-    //    IsAvoiding = AddMovePerpendicularToObstacle(V[2], 70);
+        AddMovement(VectorRotated);
+    }
+    else if (CollisionDetectionLeftRay)
+    {
+        int Factor = FMath::RandRange(0, 20) / 100;
 
-    //if (!IsAvoiding)
-    //{
-    GetPawn()->AddMovementInput(GetPawn()->GetActorForwardVector(), 1);
-    //}
+        auto TangenDirection = -FVector::CrossProduct(GetPawn()->GetActorUpVector(), ImpactNormal1);
+        auto NewDirection = (TangenDirection + ImpactNormal1 * Factor).GetSafeNormal();
+        AddMovement(NewDirection);
+
+    }
+    else if (CollisionDetectionRightRay)
+    {
+        int Factor = FMath::RandRange(0, 20) / 100;
+        auto TangenDirection = FVector::CrossProduct(GetPawn()->GetActorUpVector(), ImpactNormal2);
+        auto NewDirection = (TangenDirection + ImpactNormal2 * Factor).GetSafeNormal();
+        AddMovement(NewDirection);
+    }
+    else
+    {
+        AddMovement(GetPawn()->GetActorForwardVector());
+    }
 }
 
 void ASDTAIController::Tick(float deltaTime)
 {
-	AvoidObstacle();
-
+	NavigationPatrol();
     //UE_LOG(LogTemp, Warning, TEXT("MyValue is: %f , %f, %f"), 0.0f, 0.0f, 0.0f);
 
 	Super::Tick(deltaTime);
