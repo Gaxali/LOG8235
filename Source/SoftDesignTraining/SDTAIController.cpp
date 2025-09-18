@@ -22,18 +22,17 @@ void ASDTAIController::BeginPlay()
 
     if (AIPawn)
     {
-        ACharacter* CharacterAI = Cast<ACharacter>(AIPawn);
-        CharacterAI->GetCharacterMovement()->MaxWalkSpeed = 500.0f;
+        CharacterAI = Cast<ACharacter>(AIPawn);
+        CharacterAI->GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
     }
 }
 
-bool ASDTAIController::TestRaycast(float AngleDegrees, float Length, FVector& ImpactNormalOutput)
+bool ASDTAIController::TestRaycast(float AngleDegrees, float Length, FHitResult& ResultOut, FColor Color)
 {
     bool Success = false;
 
     FCollisionObjectQueryParams QueryParams(FCollisionObjectQueryParams::AllStaticObjects);
-    FHitResult Result;
-
+    
     auto ForwardVector = GetPawn()->GetActorForwardVector();
 
     FVector Up(0, 0, 1);
@@ -42,19 +41,12 @@ bool ASDTAIController::TestRaycast(float AngleDegrees, float Length, FVector& Im
     auto PositionStart = GetPawn()->GetActorLocation();
     auto PositionEnd = GetPawn()->GetActorLocation() + Length * VectorRotated;
 
-    bool bHitWorld = GetWorld()->LineTraceSingleByObjectType(Result,
+    Success = GetWorld()->LineTraceSingleByObjectType(ResultOut,
         PositionStart,
         PositionEnd,
         QueryParams);
 
-    if (bHitWorld)
-    {
-        ImpactNormalOutput = Result.ImpactNormal;
-       
-        Success = true;
-    }
-
-    DrawDebugDirectionalArrow(GetWorld(), PositionStart, PositionEnd, 2, FColor::Red, false);
+    DrawDebugDirectionalArrow(GetWorld(), PositionStart, PositionEnd, 2, Color, false);
 
     return Success;
 }
@@ -65,19 +57,28 @@ void ASDTAIController::AddMovement(FVector NewDirection)
     GetPawn()->SetActorRotation(NewDirection.ToOrientationQuat());
 }
 
-void ASDTAIController::NavigationPatrol()
+void ASDTAIController::AddMovementSides(const FHitResult& ResultIn, float Direction)
 {
-    FVector ImpactNormal1 = FVector::Zero();
-    FVector ImpactNormal2 = FVector::Zero();
+    int Factor = FMath::RandRange(0, 20) / 100;
 
-    float Angle = 30.0f;
+    auto TangenDirection = Direction * FVector::CrossProduct(GetPawn()->GetActorUpVector(), ResultIn.ImpactNormal);
+    auto NewDirection = (TangenDirection + ResultIn.ImpactNormal * Factor).GetSafeNormal();
+    AddMovement(NewDirection);
+}
 
-    bool CollisionDetectionLeftRay = TestRaycast(-Angle, 150, ImpactNormal1);
-    bool CollisionDetectionRightRay = TestRaycast(Angle, 150, ImpactNormal2);
+void ASDTAIController::AvoidingObstaces()
+{
+    FHitResult Result1;
+    FHitResult Result2;
     
+    float Angle = 20.0f;
+
+    bool CollisionDetectionLeftRay = TestRaycast(-Angle, 150, Result1);
+    bool CollisionDetectionRightRay = TestRaycast(Angle, 150, Result2);
+
     if (CollisionDetectionLeftRay && CollisionDetectionRightRay)
     {
-        FVector TotalDirection = (ImpactNormal1 + ImpactNormal2).GetSafeNormal();
+        FVector TotalDirection = (Result1.ImpactNormal + Result2.ImpactNormal).GetSafeNormal();
 
         int AngleDeg = FMath::RandRange(-10, 10);
         FVector Up(0, 0, 1);
@@ -87,24 +88,45 @@ void ASDTAIController::NavigationPatrol()
     }
     else if (CollisionDetectionLeftRay)
     {
-        int Factor = FMath::RandRange(0, 20) / 100;
-
-        auto TangenDirection = -FVector::CrossProduct(GetPawn()->GetActorUpVector(), ImpactNormal1);
-        auto NewDirection = (TangenDirection + ImpactNormal1 * Factor).GetSafeNormal();
-        AddMovement(NewDirection);
+        AddMovementSides(Result1, -1);
 
     }
     else if (CollisionDetectionRightRay)
     {
-        int Factor = FMath::RandRange(0, 20) / 100;
-        auto TangenDirection = FVector::CrossProduct(GetPawn()->GetActorUpVector(), ImpactNormal2);
-        auto NewDirection = (TangenDirection + ImpactNormal2 * Factor).GetSafeNormal();
-        AddMovement(NewDirection);
+        AddMovementSides(Result2, 1);
     }
     else
     {
         AddMovement(GetPawn()->GetActorForwardVector());
     }
+}
+
+void ASDTAIController::SpeedAdjustment()
+{
+    if (!CharacterAI)
+    {
+        return;
+    }
+
+    FHitResult Result;
+    float MaxLenghtOfTheRayCast = 300.0f;
+    float Distance = MaxLenghtOfTheRayCast;
+
+    if (TestRaycast(0, 300, Result, FColor::Blue))
+    {
+        Distance = Result.Distance;
+
+    }
+
+    CharacterAI->GetCharacterMovement()->MaxWalkSpeed = (Distance / MaxLenghtOfTheRayCast) * MaxWalkSpeed;
+}
+
+void ASDTAIController::NavigationPatrol()
+{
+    AvoidingObstaces();
+
+    SpeedAdjustment();
+
 }
 
 void ASDTAIController::Tick(float deltaTime)
