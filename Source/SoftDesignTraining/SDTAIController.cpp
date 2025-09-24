@@ -27,7 +27,7 @@ void ASDTAIController::BeginPlay()
     }
 }
 
-bool ASDTAIController::TestRaycast(float AngleDegrees, float Length, FHitResult& ResultOut, FColor Color)
+bool ASDTAIController::TestRaycast(float AngleSideDegrees, float AngleDegreesDown, float Length, FHitResult& ResultOut, FColor Color)
 {
     bool Success = false;
 
@@ -36,7 +36,8 @@ bool ASDTAIController::TestRaycast(float AngleDegrees, float Length, FHitResult&
     auto ForwardVector = GetPawn()->GetActorForwardVector();
 
     FVector Up(0, 0, 1);
-    FVector VectorRotated = ForwardVector.RotateAngleAxis(AngleDegrees, Up);
+    FVector VectorRotated = ForwardVector.RotateAngleAxis(AngleSideDegrees, Up);
+    VectorRotated = VectorRotated.RotateAngleAxis(AngleDegreesDown, FVector::CrossProduct(Up, VectorRotated));
 
     auto PositionStart = GetPawn()->GetActorLocation();
     auto PositionEnd = GetPawn()->GetActorLocation() + Length * VectorRotated;
@@ -73,8 +74,8 @@ void ASDTAIController::AvoidingObstaces()
     
     float Angle = 20.0f;
 
-    bool CollisionDetectionLeftRay = TestRaycast(-Angle, 150, Result1);
-    bool CollisionDetectionRightRay = TestRaycast(Angle, 150, Result2);
+    bool CollisionDetectionLeftRay = TestRaycast(-Angle, 35, 200, Result1);
+    bool CollisionDetectionRightRay = TestRaycast(Angle, 35, 200, Result2);
 
     if (CollisionDetectionLeftRay && CollisionDetectionRightRay)
     {
@@ -112,7 +113,7 @@ void ASDTAIController::SpeedAdjustment()
     float MaxLenghtOfTheRayCast = 300.0f;
     float Distance = MaxLenghtOfTheRayCast;
 
-    if (TestRaycast(0, 300, Result, FColor::Blue))
+    if (TestRaycast(0, 0, 300, Result, FColor::Blue))
     {
         Distance = Result.Distance;
 

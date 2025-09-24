@@ -19,7 +19,7 @@ class SOFTDESIGNTRAINING_API ASDTAIController : public AAIController
 
     /////
     void AddMovement(FVector NewDirection);
-    bool TestRaycast(float AngleDegrees, float Length, FHitResult& ResultOut, FColor Color = FColor::Red);
+    bool TestRaycast(float AngleSideDegrees, float AngleDegreesDown, float Length, FHitResult& ResultOut, FColor Color = FColor::Red);
     void AddMovementSides(const FHitResult& ResultIn, float Direction);
     void AvoidingObstaces();
     void SpeedAdjustment();
