@@ -8,6 +8,7 @@
 #include "SDTAIController.generated.h"
 
 class USDTStateMachine;
+class ACharacter;
 /**
  * 
  */
@@ -18,8 +19,12 @@ class SOFTDESIGNTRAINING_API ASDTAIController : public AAIController
 
     /////
     void AddMovement(FVector NewDirection);
-    bool TestRaycast(float AngleDegrees, float Length, FVector& ImpactNormalOutput);
+    bool TestRaycast(float AngleSideDegrees, float AngleDegreesDown, float Length, FHitResult& ResultOut, FColor Color = FColor::Red);
+    void AddMovementSides(const FHitResult& ResultIn, float Direction);
+    void AvoidingObstaces();
+    void SpeedAdjustment();
     void NavigationPatrol();
+    bool HitObjectByChannelName(FHitResult& Result, FName& ChannelName);
     /////
 
 public:
@@ -35,4 +40,8 @@ private:
     UPROPERTY()
     TObjectPtr<USDTStateMachine> StateMachine;
 
+    UPROPERTY()
+    ACharacter* CharacterAI;
+
+    float MaxWalkSpeed = 500.0f;
 };
