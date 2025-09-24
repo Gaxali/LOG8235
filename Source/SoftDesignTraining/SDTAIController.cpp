@@ -7,6 +7,7 @@
 #include "HAL/PlatformTime.h" // for FPlatformTime::Cycles
 
 #include "SDTStateMachine.h"
+#include "Engine/CollisionProfile.h"
 
 ASDTAIController::ASDTAIController(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
@@ -31,8 +32,20 @@ bool ASDTAIController::TestRaycast(float AngleSideDegrees, float AngleDegreesDow
 {
     bool Success = false;
 
-    FCollisionObjectQueryParams QueryParams(FCollisionObjectQueryParams::AllStaticObjects);
+    FCollisionObjectQueryParams QueryParams;
+    // Add walls and obstacles
+    QueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
+
+    // Add DeathObjects
+    FName ChannelName(TEXT("DeathObject"));
     
+    FCollisionResponseTemplate Response;
+    if (UCollisionProfile::Get()->GetProfileTemplate(ChannelName, Response))
+    {
+        QueryParams.AddObjectTypesToQuery(Response.ObjectType);
+    }
+    //
+ 
     auto ForwardVector = GetPawn()->GetActorForwardVector();
 
     FVector Up(0, 0, 1);
