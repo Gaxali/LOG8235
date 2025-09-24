@@ -96,23 +96,23 @@ bool ASDTAIController::HitObjectByChannelName(FHitResult& Result, FName& Channel
 
 void ASDTAIController::AvoidingObstaces()
 {
-    FHitResult Result1;
-    FHitResult Result2;
+    FHitResult ResultLeftRay;
+    FHitResult ResultRightRay;
     
     FName ChannelName(TEXT("DeathObject"));
     float Angle = 20.0f;
 
-    bool CollisionDetectionLeftRay = TestRaycast(-Angle, 35, 200, Result1);
-    bool CollisionDetectionRightRay = TestRaycast(Angle, 35, 200, Result2);
+    bool CollisionDetectionLeftRay = TestRaycast(-Angle, 35, 200, ResultLeftRay);
+    bool CollisionDetectionRightRay = TestRaycast(Angle, 35, 200, ResultRightRay);
 
-    bool Result1HitDeathFloor = HitObjectByChannelName(Result1, ChannelName);
-    bool Result2HitDeathFloor = HitObjectByChannelName(Result2, ChannelName);
+    bool ResultLeftRayHitDeathFloor = HitObjectByChannelName(ResultLeftRay, ChannelName);
+    bool ResultRightRayHitDeathFloor = HitObjectByChannelName(ResultRightRay, ChannelName);
 
     if (CollisionDetectionLeftRay && CollisionDetectionRightRay)
     {
-        FVector TotalDirection = (Result1.ImpactNormal + Result2.ImpactNormal).GetSafeNormal();
+        FVector TotalDirection = (ResultLeftRay.ImpactNormal + ResultRightRay.ImpactNormal).GetSafeNormal();
 
-        if (Result1HitDeathFloor || Result2HitDeathFloor)
+        if (ResultLeftRayHitDeathFloor || ResultRightRayHitDeathFloor)
         {
             TotalDirection = -GetPawn()->GetActorForwardVector();
         }
@@ -125,12 +125,26 @@ void ASDTAIController::AvoidingObstaces()
     }
     else if (CollisionDetectionLeftRay)
     {
-        AddMovementSides(Result1, -1);
-
+        if (ResultLeftRayHitDeathFloor)
+        {
+            AddMovement(-GetPawn()->GetActorForwardVector());
+        }
+        else
+        {
+            AddMovementSides(ResultLeftRay, -1);
+        }
+        
     }
     else if (CollisionDetectionRightRay)
     {
-        AddMovementSides(Result2, 1);
+        if (ResultRightRayHitDeathFloor)
+        {
+            AddMovement(-GetPawn()->GetActorForwardVector());
+        }
+        else
+        {
+            AddMovementSides(ResultRightRay, 1);
+        }
     }
     else
     {
