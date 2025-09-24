@@ -24,6 +24,7 @@ class SOFTDESIGNTRAINING_API ASDTAIController : public AAIController
     void AvoidingObstaces();
     void SpeedAdjustment();
     void NavigationPatrol();
+    bool HitObjectByChannelName(FHitResult& Result, FName& ChannelName);
     /////
 
 public:

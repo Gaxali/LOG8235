@@ -80,19 +80,42 @@ void ASDTAIController::AddMovementSides(const FHitResult& ResultIn, float Direct
     AddMovement(NewDirection);
 }
 
+bool ASDTAIController::HitObjectByChannelName(FHitResult& Result, FName& ChannelName)
+{
+    const UPrimitiveComponent* Component = Cast<UPrimitiveComponent>(Result.GetComponent());
+    if (!Component) return false;
+
+    FCollisionResponseTemplate Response;
+    if (UCollisionProfile::Get()->GetProfileTemplate(ChannelName, Response))
+    {
+        return Component->GetCollisionObjectType() == Response.ObjectType;
+    }
+        
+    return false;
+}
+
 void ASDTAIController::AvoidingObstaces()
 {
     FHitResult Result1;
     FHitResult Result2;
     
+    FName ChannelName(TEXT("DeathObject"));
     float Angle = 20.0f;
 
     bool CollisionDetectionLeftRay = TestRaycast(-Angle, 35, 200, Result1);
     bool CollisionDetectionRightRay = TestRaycast(Angle, 35, 200, Result2);
 
+    bool Result1HitDeathFloor = HitObjectByChannelName(Result1, ChannelName);
+    bool Result2HitDeathFloor = HitObjectByChannelName(Result2, ChannelName);
+
     if (CollisionDetectionLeftRay && CollisionDetectionRightRay)
     {
         FVector TotalDirection = (Result1.ImpactNormal + Result2.ImpactNormal).GetSafeNormal();
+
+        if (Result1HitDeathFloor || Result2HitDeathFloor)
+        {
+            TotalDirection = -GetPawn()->GetActorForwardVector();
+        }
 
         int AngleDeg = FMath::RandRange(-10, 10);
         FVector Up(0, 0, 1);
