@@ -45,6 +45,37 @@ void ASoftDesignTrainingCharacter::OnBeginOverlap(UPrimitiveComponent* Overlappe
     }
 }
 
+
+void ASoftDesignTrainingCharacter::ApplyAcceleration(const FVector& Acceleration, float DeltaTime, float MaxSpeed)
+{
+    //Calculer la nouvelle vitesse avec l'accélération
+    CurrentVelocity += Acceleration * DeltaTime;
+
+    //Limitation de vitesse avec MaxSpeed
+    if (CurrentVelocity.Size() > MaxSpeed)
+    {
+        CurrentVelocity = CurrentVelocity.GetSafeNormal() * MaxSpeed;
+    }
+
+    //Déplacement de l'agent
+    FVector NewLocation = GetActorLocation() + CurrentVelocity * DeltaTime;
+    SetActorLocation(NewLocation, true);
+
+    //Orienter l'agent dans la direction de la vitesse
+    if (!CurrentVelocity.IsNearlyZero())
+    {
+        //Ignorer la vitesse verticale pour la rotation
+        FVector HorizontalVelocity = FVector(CurrentVelocity.X, CurrentVelocity.Y, 0.0f);
+
+        if (!HorizontalVelocity.IsNearlyZero())
+        {
+            FRotator NewRotation = HorizontalVelocity.ToOrientationRotator();
+            SetActorRotation(NewRotation);
+        }
+    }
+}
+
+
 void ASoftDesignTrainingCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);   
