@@ -6,6 +6,18 @@
 #include "UObject/NoExportTypes.h"
 #include "SDTStateMachine.generated.h"
 
+class ACharacter;
+class APawn;
+
+UENUM(BlueprintType)
+enum class AIState : uint8
+{
+    Patrol,
+    Chase,
+    Flee,
+    Collect
+};
+
 /**
  * 
  */
@@ -14,7 +26,26 @@ class SOFTDESIGNTRAINING_API USDTStateMachine : public UObject
 {
 	GENERATED_BODY()
 	
+private:
+
+    bool IsCharacterClose(ACharacter* TargetCharacter, APawn* AIPawn);
+    bool IsCharacterInSight(ACharacter* TargetCharacter, APawn* AIPawn);
+    void FindPickup(APawn* AIPawn);
+    void UpdateReferencePosition(ACharacter* TargetCharacter, APawn* AIPawn);
+    void Transition(APawn* AIPawn);
+    FVector Chase(APawn* AIPawn);
+    FVector Flee(APawn* AIPawn);
+    FVector Move(APawn* AIPawn);
+    FVector Collect(APawn* AIPawn);
+
 public:
 
-	void Run();
+	void Run(APawn* AIPawn, FVector& OutDirection);
+
+private:
+
+    AIState CurrentState = AIState::Patrol;
+    FVector ReferencePlayerPosition;
+    FVector ClosestPickupPosition = FVector::ZeroVector;;
+
 };

@@ -10,8 +10,8 @@
 #include "Engine/CollisionProfile.h"
 
 #include "SoftDesignTrainingMainCharacter.h"
-#include "SDTCollectible.h"
-#include "EngineUtils.h"
+
+
 ASDTAIController::ASDTAIController(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
@@ -97,7 +97,7 @@ bool ASDTAIController::HitObjectByChannelName(FHitResult& Result, FName& Channel
     return false;
 }
 
-void ASDTAIController::AvoidingObstaces()
+void ASDTAIController::AvoidingObstaces(const FVector& Direction)
 {
     FHitResult ResultLeftRay;
     FHitResult ResultRightRay;
@@ -151,7 +151,7 @@ void ASDTAIController::AvoidingObstaces()
     }
     else
     {
-        AddMovement(GetPawn()->GetActorForwardVector());
+        AddMovement(Direction);
     }
 }
 
@@ -175,214 +175,23 @@ void ASDTAIController::SpeedAdjustment()
     CharacterAI->GetCharacterMovement()->MaxWalkSpeed = (Distance / MaxLenghtOfTheRayCast) * MaxWalkSpeed;
 }
 
-bool ASDTAIController::IsCharacterClose(ACharacter* TargetCharacter)
+void ASDTAIController::Navigation(const FVector& Direction)
 {
-    FVector AIPosition = GetPawn()->GetActorLocation();
-    FVector PlayerPosition = TargetCharacter->GetActorLocation();
-
-    float SphereRadius = 500.0f;
-
-    return FVector::Dist(AIPosition, PlayerPosition) <= SphereRadius;
-}
-
-bool ASDTAIController::IsCharacterInSight(ACharacter* TargetCharacter)
-{
-    FVector AIPosition = GetPawn()->GetActorLocation();
-    FVector PlayerPosition = TargetCharacter->GetActorLocation();
-
-    FHitResult HitResult;
-    FCollisionObjectQueryParams QueryParams(FCollisionObjectQueryParams::AllStaticObjects);
-
-    bool bHit = GetWorld()->LineTraceSingleByObjectType(
-        HitResult,
-        AIPosition,
-        PlayerPosition,
-        QueryParams
-    );
-
-
-    if (bHit)
-        return false;
-    return true;
-}
-
-void ASDTAIController::FindPickup()
-{
-    FVector AIPosition = GetPawn()->GetActorLocation();
-    float MinDistance = 750.0f;
-	ClosestPickupPosition = FVector::ZeroVector;
-
-    for (TActorIterator<AActor> It(GetWorld()); It; ++It)
-    {
-        ASDTCollectible* Pickup = Cast<ASDTCollectible>(*It);
-        if (Pickup && !Pickup->IsOnCooldown())
-        {
-            FVector PickupPosition = Pickup->GetActorLocation();
-            float Distance = FVector::Dist(AIPosition, PickupPosition);
-
-            if (Distance < MinDistance)
-            {
-                FHitResult HitResult;
-                FCollisionObjectQueryParams ObjectQueryParams(FCollisionObjectQueryParams::AllObjects);
-                FCollisionQueryParams QueryParams;
-                QueryParams.AddIgnoredActor(GetPawn());
-
-                bool bHit = GetWorld()->LineTraceSingleByObjectType(
-                    HitResult,
-                    AIPosition,
-                    PickupPosition,
-                    ObjectQueryParams,
-                    QueryParams
-                );
-				UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), bHit ? *HitResult.GetActor()->GetName() : TEXT("None"));
-                if (bHit && HitResult.GetActor() == Pickup)
-                {
-                    ClosestPickupPosition = PickupPosition;
-                }
-            }
-        }
-    }
-}
-
-void ASDTAIController::UpdateReferencePosition(ACharacter* TargetCharacter)
-{
-    FVector PlayerPosition = TargetCharacter->GetActorLocation();
-    if (IsCharacterInSight(TargetCharacter) && FVector::Dist(ReferencePlayerPosition, PlayerPosition) > 10.0f)
-        ReferencePlayerPosition = PlayerPosition;
-}
-
-void ASDTAIController::Chase()
-{
-    ACharacter* PlayerCharacter = Cast<ACharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-
-    UpdateReferencePosition(PlayerCharacter);
-    FVector AIPosition = GetPawn()->GetActorLocation();
-    FVector DirectionVector = (ReferencePlayerPosition - AIPosition).GetSafeNormal();
-	AddMovement(DirectionVector);
-}
-
-void ASDTAIController::Flee()
-{
-    ACharacter* PlayerCharacter = Cast<ACharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-
-    FVector AIPosition = GetPawn()->GetActorLocation();
-    FVector PlayerPosition = PlayerCharacter->GetActorLocation();
-    FVector DirectionVector = (PlayerPosition - AIPosition).GetSafeNormal();
-    AddMovement(-DirectionVector);
-}
-
-void ASDTAIController::Collect()
-{
-    FVector AIPosition = GetPawn()->GetActorLocation();
-    FVector DirectionVector = (ClosestPickupPosition - AIPosition).GetSafeNormal();
-    AddMovement(DirectionVector);
-}
-
-void ASDTAIController::Transition()
-{
-    ASoftDesignTrainingMainCharacter* PlayerCharacter = Cast<ASoftDesignTrainingMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-
-    bool bIsClose = IsCharacterClose(PlayerCharacter);
-    bool bInSight = IsCharacterInSight(PlayerCharacter);
-	bool bplayerHasPickup = PlayerCharacter->IsPoweredUp();
-
-    switch (CurrentState)
-    {
-        case AIState::Patrol:
-            if (bIsClose && bInSight && !bplayerHasPickup)
-            {
-                CurrentState = AIState::Chase;
-            }
-            if (bIsClose && bInSight && bplayerHasPickup)
-            {
-                CurrentState = AIState::Flee;
-		    }
-            FindPickup();
-            if (ClosestPickupPosition != FVector::ZeroVector)
-            {
-                CurrentState = AIState::Collect;
-			}
-            break;
-        case AIState::Chase:
-            if (!bIsClose)
-            {
-                CurrentState = AIState::Patrol;
-            }
-            if (bIsClose && bInSight && bplayerHasPickup)
-            {
-                CurrentState = AIState::Flee;
-		    }
-            break;
-        case AIState::Flee:
-            if (!bIsClose)
-            {
-                CurrentState = AIState::Patrol;
-            }
-            if (bIsClose && bInSight && !bplayerHasPickup)
-            {
-                CurrentState = AIState::Chase;
-		    }
-            break;
-		case AIState::Collect:
-            if (bIsClose && bInSight && !bplayerHasPickup)
-            {
-                CurrentState = AIState::Chase;
-            }
-            if (bIsClose && bInSight && bplayerHasPickup)
-            {
-                CurrentState = AIState::Flee;
-            }
-			FindPickup();
-            if (ClosestPickupPosition == FVector::ZeroVector)
-            {
-				CurrentState = AIState::Patrol;
-            }
-            break;
-        default:
-            break;
-     }
-}
-void ASDTAIController::NavigationPatrol()
-{
-    AvoidingObstaces();
+    AvoidingObstaces(Direction);
 
     SpeedAdjustment();
 }
 
-void ASDTAIController::Move()
-{
-    switch (CurrentState)
-    {
-    case AIState::Patrol:
-        NavigationPatrol();
-        break;
-    case AIState::Chase:
-        Chase();
-        break;
-    case AIState::Flee:
-        Flee();
-        break;
-	case AIState::Collect:
-		Collect();
-		break;
-    default:
-        break;
-    }
-}
-
 void ASDTAIController::Tick(float deltaTime)
-{  
-    Transition();
-    Move();
-    FVector AIPosition = GetPawn()->GetActorLocation();
-
-    float SphereRadius = 500.0f;
-    DrawDebugSphere(GetWorld(), AIPosition, SphereRadius, 16, FColor::Green, false, -1, 0, 2);
-	Super::Tick(deltaTime);
+{ 
+    Super::Tick(deltaTime);
 
     if (StateMachine)
     {
-        StateMachine->Run();
+        FVector OutDirection;
+        StateMachine->Run(GetPawn(), OutDirection);
+
+        Navigation(OutDirection);
     }
 }
 

@@ -10,39 +10,20 @@
 class USDTStateMachine;
 class ACharacter;
 
-UENUM(BlueprintType)
-enum class AIState : uint8
-{
-    Patrol,
-    Chase,
-    Flee,
-    Collect
-};
-
 UCLASS(ClassGroup = AI, config = Game)
 class SOFTDESIGNTRAINING_API ASDTAIController : public AAIController
 {
     GENERATED_BODY()
 
     void AddMovementSides(const FHitResult& ResultIn, float Direction);
-    void AvoidingObstaces();
+    void AvoidingObstaces(const FVector& Direction);
     void SpeedAdjustment();
-    /////
+
+    void Navigation(const FVector& Direction);
+
     void AddMovement(FVector NewDirection);
     bool TestRaycast(float AngleSideDegrees, float AngleDegreesDown, float Length, FHitResult& ResultOut, FColor Color = FColor::Red);
-    bool IsCharacterClose(ACharacter* TargetCharacter);
-    bool IsCharacterInSight(ACharacter* TargetCharacter);
-    void FindPickup();
-    void UpdateReferencePosition(ACharacter* TargetCharacter);
-	void Transition();
-    void NavigationPatrol();
-    void Chase();
-    void Flee();
-    void Move();
-    void Collect();
-    /////
-
-	bool HitObjectByChannelName(FHitResult& Result, FName& ChannelName);
+    bool HitObjectByChannelName(FHitResult& Result, FName& ChannelName);
 
 public:
 
@@ -56,10 +37,7 @@ private:
 
     UPROPERTY()
     TObjectPtr<USDTStateMachine> StateMachine;
-	AIState CurrentState = AIState::Patrol;
-	FVector ReferencePlayerPosition;
-    FVector ClosestPickupPosition = FVector::ZeroVector;;
-
+	
     UPROPERTY()
     ACharacter* CharacterAI;
 
