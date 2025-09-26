@@ -63,7 +63,7 @@ bool ASDTAIController::TestRaycast(float AngleSideDegrees, float AngleDegreesDow
         PositionEnd,
         QueryParams);
 
-    DrawDebugDirectionalArrow(GetWorld(), PositionStart, PositionEnd, 2, Color, false);
+    //DrawDebugDirectionalArrow(GetWorld(), PositionStart, PositionEnd, 2, Color, false);
 
     return Success;
 }

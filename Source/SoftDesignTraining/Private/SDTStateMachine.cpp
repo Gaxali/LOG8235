@@ -66,7 +66,7 @@ void USDTStateMachine::FindPickup(APawn* AIPawn)
                     ObjectQueryParams,
                     QueryParams
                 );
-                UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), bHit ? *HitResult.GetActor()->GetName() : TEXT("None"));
+                //UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), bHit ? *HitResult.GetActor()->GetName() : TEXT("None"));
                 if (bHit && HitResult.GetActor() == Pickup)
                 {
                     ClosestPickupPosition = PickupPosition;
@@ -212,8 +212,8 @@ void USDTStateMachine::Run(APawn* AIPawn, FVector& OutDirection)
 
         FVector AIPosition = AIPawn->GetActorLocation();
 
-        float SphereRadius = 800.0f;
-        DrawDebugSphere(GetWorld(), AIPosition, SphereRadius, 16, FColor::Green, false, -1, 0, 2);
+        //float SphereRadius = 800.0f;
+        //DrawDebugSphere(GetWorld(), AIPosition, SphereRadius, 16, FColor::Green, false, -1, 0, 2);
 
     }
 	
