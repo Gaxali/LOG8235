@@ -12,7 +12,7 @@ bool USDTStateMachine::IsCharacterClose(ACharacter* TargetCharacter, APawn* AIPa
     FVector AIPosition = AIPawn->GetActorLocation();
     FVector PlayerPosition = TargetCharacter->GetActorLocation();
 
-    float SphereRadius = 500.0f;
+    float SphereRadius = 800.0f;
 
     return FVector::Dist(AIPosition, PlayerPosition) <= SphereRadius;
 }
@@ -212,7 +212,7 @@ void USDTStateMachine::Run(APawn* AIPawn, FVector& OutDirection)
 
         FVector AIPosition = AIPawn->GetActorLocation();
 
-        float SphereRadius = 500.0f;
+        float SphereRadius = 800.0f;
         DrawDebugSphere(GetWorld(), AIPosition, SphereRadius, 16, FColor::Green, false, -1, 0, 2);
 
     }
