@@ -27,7 +27,7 @@ void ASDTAIController::BeginPlay()
     if (AIPawn)
     {
         CharacterAI = Cast<ACharacter>(AIPawn);
-        CharacterAI->GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
+        //CharacterAI->GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
     }
 }
 
@@ -70,8 +70,15 @@ bool ASDTAIController::TestRaycast(float AngleSideDegrees, float AngleDegreesDow
 
 void ASDTAIController::AddMovement(FVector NewDirection)
 {
-    GetPawn()->AddMovementInput(NewDirection, 1);
-    GetPawn()->SetActorRotation(NewDirection.ToOrientationQuat());
+
+    //GetPawn()->AddMovementInput(NewDirection, 1);
+    //GetPawn()->SetActorRotation(NewDirection.ToOrientationQuat());
+
+    if (auto* MyCharacter = Cast<ASoftDesignTrainingCharacter>(GetPawn()))
+    {
+        FVector Accel = NewDirection * 2500.0f; //forte accélération pour virage rapide
+        MyCharacter->ApplyAcceleration(Accel, GetWorld()->GetDeltaSeconds(), MaxWalkSpeed);
+    }
 }
 
 void ASDTAIController::AddMovementSides(const FHitResult& ResultIn, float Direction)
@@ -155,31 +162,11 @@ void ASDTAIController::AvoidingObstaces(const FVector& Direction)
     }
 }
 
-void ASDTAIController::SpeedAdjustment()
-{
-    if (!CharacterAI)
-    {
-        return;
-    }
-
-    FHitResult Result;
-    float MaxLenghtOfTheRayCast = 300.0f;
-    float Distance = MaxLenghtOfTheRayCast;
-
-    if (TestRaycast(0, 0, 300, Result, FColor::Blue))
-    {
-        Distance = Result.Distance;
-
-    }
-
-    CharacterAI->GetCharacterMovement()->MaxWalkSpeed = (Distance / MaxLenghtOfTheRayCast) * MaxWalkSpeed;
-}
 
 void ASDTAIController::Navigation(const FVector& Direction)
 {
     AvoidingObstaces(Direction);
 
-    SpeedAdjustment();
 }
 
 void ASDTAIController::Tick(float deltaTime)

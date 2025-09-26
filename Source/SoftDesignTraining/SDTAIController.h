@@ -17,7 +17,6 @@ class SOFTDESIGNTRAINING_API ASDTAIController : public AAIController
 
     void AddMovementSides(const FHitResult& ResultIn, float Direction);
     void AvoidingObstaces(const FVector& Direction);
-    void SpeedAdjustment();
 
     void Navigation(const FVector& Direction);
 
