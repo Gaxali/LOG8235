@@ -59,7 +59,7 @@ void ASoftDesignTrainingCharacter::ApplyAcceleration(const FVector& Acceleration
 
     //Déplacement de l'agent
     FVector NewLocation = GetActorLocation() + CurrentVelocity * DeltaTime;
-    SetActorLocation(NewLocation, true);
+    SetActorLocation(NewLocation, false);
 
     //Orienter l'agent dans la direction de la vitesse
     if (!CurrentVelocity.IsNearlyZero())

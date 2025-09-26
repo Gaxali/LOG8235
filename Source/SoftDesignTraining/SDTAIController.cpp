@@ -70,6 +70,10 @@ bool ASDTAIController::TestRaycast(float AngleSideDegrees, float AngleDegreesDow
 
 void ASDTAIController::AddMovement(FVector NewDirection)
 {
+
+    //GetPawn()->AddMovementInput(NewDirection, 1);
+    //GetPawn()->SetActorRotation(NewDirection.ToOrientationQuat());
+
     if (auto* MyCharacter = Cast<ASoftDesignTrainingCharacter>(GetPawn()))
     {
         FVector Accel = NewDirection * 2500.0f; //forte accélération pour virage rapide
