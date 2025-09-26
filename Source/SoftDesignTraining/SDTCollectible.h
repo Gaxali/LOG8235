@@ -6,6 +6,9 @@
 #include "Engine/StaticMeshActor.h"
 #include "SDTCollectible.generated.h"
 
+
+class USoundFeedbackComponent;
+class UFXFeedbackComponent;
 /**
  * 
  */
@@ -16,7 +19,7 @@ class SOFTDESIGNTRAINING_API ASDTCollectible : public AStaticMeshActor
 public:
     ASDTCollectible();
 
-    void Collect();
+    void Collect(AActor* Collector);
     void OnCooldownDone();
     bool IsOnCooldown();
 
@@ -33,5 +36,12 @@ public:
 
 protected:
     FTimerHandle m_CollectCooldownTimer;
+
+    // Feedback sélectionnable dans l’éditeur
+    UPROPERTY(VisibleAnywhere, Instanced, Category = "Feedback")
+    USoundFeedbackComponent* SoundFeedback;
+
+    UPROPERTY(VisibleAnywhere, Instanced, Category = "Feedback")
+    UFXFeedbackComponent* FXFeedback;
 	
 };
