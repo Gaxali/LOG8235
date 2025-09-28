@@ -96,6 +96,14 @@ bool ASDTAIController::HitObjectByChannelName(FHitResult& Result)
     return false;
 }
 
+FVector ASDTAIController::NoiseDirection(const FVector& Direction)
+{
+    int NoiseAngle = FMath::RandRange(-30, 30);
+
+    FVector Up(0, 0, 1);
+    return Direction.RotateAngleAxis(NoiseAngle, Up);
+}
+
 void ASDTAIController::AvoidingObstaces(const FVector& Direction)
 {
     FHitResult ResultLeftRay;
@@ -116,17 +124,13 @@ void ASDTAIController::AvoidingObstaces(const FVector& Direction)
             TotalDirection = -GetPawn()->GetActorForwardVector();
         }
 
-        int AngleDeg = FMath::RandRange(-10, 10);
-        FVector Up(0, 0, 1);
-        FVector VectorRotated = TotalDirection.RotateAngleAxis(AngleDeg, Up);
-
-        AddMovement(VectorRotated);
+        AddMovement(NoiseDirection(TotalDirection));
     }
     else if (CollisionDetectionLeftRay)
     {
         if (ResultLeftRayHitDeathFloor)
         {
-            AddMovement(-GetPawn()->GetActorForwardVector());
+            AddMovement(-NoiseDirection(GetPawn()->GetActorForwardVector()));
         }
         else
         {
@@ -138,7 +142,7 @@ void ASDTAIController::AvoidingObstaces(const FVector& Direction)
     {
         if (ResultRightRayHitDeathFloor)
         {
-            AddMovement(-GetPawn()->GetActorForwardVector());
+            AddMovement(-NoiseDirection(GetPawn()->GetActorForwardVector()));
         }
         else
         {
