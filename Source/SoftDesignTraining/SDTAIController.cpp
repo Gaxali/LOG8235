@@ -13,6 +13,16 @@ ASDTAIController::ASDTAIController(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
     StateMachine = CreateDefaultSubobject<USDTStateMachine>("AIStateMachine");
+
+    // Add walls and obstacles
+    QueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
+
+    FCollisionResponseTemplate Response;
+    if (UCollisionProfile::Get()->GetProfileTemplate(ChannelName, Response))
+    {
+        QueryParams.AddObjectTypesToQuery(Response.ObjectType);
+    }
+    //
 }
 
 void ASDTAIController::BeginPlay()
@@ -24,28 +34,13 @@ void ASDTAIController::BeginPlay()
     if (AIPawn)
     {
         CharacterAI = Cast<ACharacter>(AIPawn);
-        //CharacterAI->GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
     }
 }
 
 bool ASDTAIController::TestRaycast(float AngleSideDegrees, float AngleDegreesDown, float Length, FHitResult& ResultOut, FColor Color)
 {
     bool Success = false;
-
-    FCollisionObjectQueryParams QueryParams;
-    // Add walls and obstacles
-    QueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
-
-    // Add DeathObjects
-    FName ChannelName(TEXT("DeathObject"));
-    
-    FCollisionResponseTemplate Response;
-    if (UCollisionProfile::Get()->GetProfileTemplate(ChannelName, Response))
-    {
-        QueryParams.AddObjectTypesToQuery(Response.ObjectType);
-    }
-    //
- 
+     
     auto ForwardVector = GetPawn()->GetActorForwardVector();
 
     FVector Up(0, 0, 1);
@@ -87,7 +82,7 @@ void ASDTAIController::AddMovementSides(const FHitResult& ResultIn, float Direct
     AddMovement(NewDirection);
 }
 
-bool ASDTAIController::HitObjectByChannelName(FHitResult& Result, FName& ChannelName)
+bool ASDTAIController::HitObjectByChannelName(FHitResult& Result)
 {
     const UPrimitiveComponent* Component = Cast<UPrimitiveComponent>(Result.GetComponent());
     if (!Component) return false;
@@ -106,14 +101,11 @@ void ASDTAIController::AvoidingObstaces(const FVector& Direction)
     FHitResult ResultLeftRay;
     FHitResult ResultRightRay;
     
-    FName ChannelName(TEXT("DeathObject"));
-    float Angle = 20.0f;
+    bool CollisionDetectionLeftRay = TestRaycast(-AngleSideDegree, AngleDownDegree, 200, ResultLeftRay);
+    bool CollisionDetectionRightRay = TestRaycast(AngleSideDegree, AngleDownDegree, 200, ResultRightRay);
 
-    bool CollisionDetectionLeftRay = TestRaycast(-Angle, 35, 200, ResultLeftRay);
-    bool CollisionDetectionRightRay = TestRaycast(Angle, 35, 200, ResultRightRay);
-
-    bool ResultLeftRayHitDeathFloor = HitObjectByChannelName(ResultLeftRay, ChannelName);
-    bool ResultRightRayHitDeathFloor = HitObjectByChannelName(ResultRightRay, ChannelName);
+    bool ResultLeftRayHitDeathFloor = HitObjectByChannelName(ResultLeftRay);
+    bool ResultRightRayHitDeathFloor = HitObjectByChannelName(ResultRightRay);
 
     if (CollisionDetectionLeftRay && CollisionDetectionRightRay)
     {

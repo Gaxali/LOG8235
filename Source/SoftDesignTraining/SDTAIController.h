@@ -22,7 +22,7 @@ class SOFTDESIGNTRAINING_API ASDTAIController : public AAIController
 
     void AddMovement(FVector NewDirection);
     bool TestRaycast(float AngleSideDegrees, float AngleDegreesDown, float Length, FHitResult& ResultOut, FColor Color = FColor::Red);
-    bool HitObjectByChannelName(FHitResult& Result, FName& ChannelName);
+    bool HitObjectByChannelName(FHitResult& Result);
 
 public:
 
@@ -32,6 +32,20 @@ public:
 
     virtual void Tick(float deltaTime) override;
 
+protected:
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Navigation")
+    FName ChannelName = TEXT("DeathObject");
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Navigation")
+    float AngleSideDegree = 20.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Navigation")
+    float AngleDownDegree = 35.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Navigation")
+    float MaxWalkSpeed = 500.0f;
+
 private:
 
     UPROPERTY()
@@ -40,5 +54,7 @@ private:
     UPROPERTY()
     ACharacter* CharacterAI;
 
-    float MaxWalkSpeed = 500.0f;
+    FCollisionObjectQueryParams QueryParams;
+
+    
 };
