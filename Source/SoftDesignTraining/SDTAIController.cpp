@@ -3,9 +3,6 @@
 #include "SDTAIController.h"
 #include "SoftDesignTraining.h"
 
-#include "Algo/RandomShuffle.h"
-#include "HAL/PlatformTime.h" // for FPlatformTime::Cycles
-
 #include "SDTStateMachine.h"
 #include "Engine/CollisionProfile.h"
 
