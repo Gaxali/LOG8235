@@ -15,7 +15,7 @@ class SOFTDESIGNTRAINING_API ASDTAIController : public AAIController
 {
     GENERATED_BODY()
 
-    void AddMovementSides(const FHitResult& ResultIn, float Direction);
+    void AddMovementSides(const FHitResult& ResultIn, float Sign);
     void AvoidingObstaces(const FVector& Direction);
 
     void Navigation(const FVector& Direction);

@@ -73,11 +73,11 @@ void ASDTAIController::AddMovement(FVector NewDirection)
     }
 }
 
-void ASDTAIController::AddMovementSides(const FHitResult& ResultIn, float Direction)
+void ASDTAIController::AddMovementSides(const FHitResult& ResultIn, float Sign)
 {
     int Factor = FMath::RandRange(0, 20) / 100;
 
-    auto TangenDirection = Direction * FVector::CrossProduct(GetPawn()->GetActorUpVector(), ResultIn.ImpactNormal);
+    auto TangenDirection = Sign * FVector::CrossProduct(GetPawn()->GetActorUpVector(), ResultIn.ImpactNormal);
     auto NewDirection = (TangenDirection + ResultIn.ImpactNormal * Factor).GetSafeNormal();
     AddMovement(NewDirection);
 }
