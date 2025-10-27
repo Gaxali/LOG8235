@@ -31,6 +31,15 @@ void USDTPathFollowingComponent::FollowPathSegment(float DeltaTime)
     }
     else
     {
+        
+        FVector MoveVelocity = (segmentEnd.Location - segmentStart.Location) / DeltaTime;
+
+        const int32 LastSegmentStartIndex = Path->GetPathPoints().Num() - 2;
+        const bool bNotFollowingLastSegment = (MoveSegmentStartIndex < LastSegmentStartIndex);
+
+        PostProcessMove.ExecuteIfBound(this, MoveVelocity);
+        NavMovementInterface->RequestDirectMove(MoveVelocity, bNotFollowingLastSegment);
+
         // Update navigation along path (move along)
     }
 }
