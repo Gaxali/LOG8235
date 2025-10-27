@@ -3,59 +3,45 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AIController.h"
-
+#include "SDTBaseAIController.h"
 #include "SDTAIController.generated.h"
 
-class USDTStateMachine;
-class ACharacter;
-
-UCLASS(ClassGroup = AI, config = Game)
-class SOFTDESIGNTRAINING_API ASDTAIController : public AAIController
+enum class ActionPriority
 {
-    GENERATED_BODY()
+    FLEE,
+    PLAYER,
+    LKP,
+    COLLECTIBLE,
+};
 
-    FVector NoiseDirection(const FVector& Direction);
-    void AddMovementSides(const FHitResult& ResultIn, float Sign);
-    void AvoidingObstaces(const FVector& Direction);
+enum class PedestrianState
+{
+    SPAWNED,
+    GO_TO_BRIDGE,
+    WAIT_AT_BRIDGE,
+    GO_TO_DESPAWN,
+    DESPAWN
+};
 
-    void Navigation(const FVector& Direction);
-
-    void AddMovement(FVector NewDirection);
-    bool TestRaycast(float AngleSideDegrees, float AngleDegreesDown, float Length, FHitResult& ResultOut, FColor Color = FColor::Red);
-    bool HitObjectByChannelName(FHitResult& Result);
+/**
+ * 
+ */
+UCLASS(ClassGroup = AI, config = Game)
+class SOFTDESIGNTRAINING_API ASDTAIController : public ASDTBaseAIController
+{
+	GENERATED_BODY()
 
 public:
+    ASDTAIController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-    ASDTAIController(const FObjectInitializer& ObjectInitializer);
+public:
+    virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
+    void AIStateInterrupted();
 
-    virtual void BeginPlay() override;
-
-    virtual void Tick(float deltaTime) override;
-
-protected:
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Navigation")
-    FName ChannelName = TEXT("DeathObject");
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Navigation")
-    float AngleSideDegree = 20.0f;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Navigation")
-    float AngleDownDegree = 35.0f;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Navigation")
-    float MaxWalkSpeed = 500.0f;
 
 private:
+    virtual void GoToBestTarget(float deltaTime) override;
+    virtual void ShowNavigationPath() override;
 
-    UPROPERTY()
-    TObjectPtr<USDTStateMachine> StateMachine;
-	
-    UPROPERTY()
-    ACharacter* CharacterAI;
-
-    FCollisionObjectQueryParams QueryParams;
-
-    
+    PedestrianState m_PedestrianState{ PedestrianState::SPAWNED };
 };

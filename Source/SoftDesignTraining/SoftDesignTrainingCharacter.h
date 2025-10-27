@@ -13,16 +13,5 @@ public:
     ASoftDesignTrainingCharacter();
 
     virtual void BeginPlay() override;
-    virtual void OnCollectPowerUp() {};
-	void ApplyAcceleration(const FVector& Acceleration, float DeltaTime, float MaxSpeed);
-
-    void Tick(float DeltaTime);
-
-protected:
-    UFUNCTION()
-    virtual void OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-    FVector m_StartingPosition;
-	FVector CurrentVelocity = FVector::ZeroVector;
 };
 
