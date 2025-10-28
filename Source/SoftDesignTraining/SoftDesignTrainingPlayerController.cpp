@@ -88,6 +88,9 @@ void ASoftDesignTrainingPlayerController::DebugDrawCalculatedPath(UNavigationPat
 {
     UE_LOG(LogTemp, Display, TEXT("Path found with %d points."), NavPath->PathPoints.Num());
 
+    if (NavPath->PathPoints.IsEmpty())
+        return;
+
     // Visualize it
     for (int32 i = 0; i < NavPath->PathPoints.Num() - 1; ++i)
     {
