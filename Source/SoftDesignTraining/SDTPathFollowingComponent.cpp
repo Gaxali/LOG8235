@@ -21,27 +21,34 @@ USDTPathFollowingComponent::USDTPathFollowingComponent(const FObjectInitializer&
 */
 void USDTPathFollowingComponent::FollowPathSegment(float DeltaTime)
 {
-    const TArray<FNavPathPoint>& points = Path->GetPathPoints();
-    const FNavPathPoint& segmentStart = points[MoveSegmentStartIndex];
-    const FNavPathPoint& segmentEnd = points[MoveSegmentEndIndex];
+    Super::FollowPathSegment(DeltaTime);
 
-    if (SDTUtils::HasJumpFlag(segmentStart))
-    {
-        // Update jump along path / nav link proxy
-    }
-    else
-    {
-        
-        FVector MoveVelocity = (segmentEnd.Location - segmentStart.Location) / DeltaTime;
-
-        const int32 LastSegmentStartIndex = Path->GetPathPoints().Num() - 2;
-        const bool bNotFollowingLastSegment = (MoveSegmentStartIndex < LastSegmentStartIndex);
-
-        PostProcessMove.ExecuteIfBound(this, MoveVelocity);
-        NavMovementInterface->RequestDirectMove(MoveVelocity, bNotFollowingLastSegment);
-
-        // Update navigation along path (move along)
-    }
+    //if (!Path)
+    //{
+    //    return;
+    //}
+    //
+    //const TArray<FNavPathPoint>& points = Path->GetPathPoints();
+    //const FNavPathPoint& segmentStart = points[MoveSegmentStartIndex];
+    //const FNavPathPoint& segmentEnd = points[MoveSegmentEndIndex];
+    //
+    //if (SDTUtils::HasJumpFlag(segmentStart))
+    //{
+    //    // Update jump along path / nav link proxy
+    //}
+    //else
+    //{
+    //    
+    //    FVector MoveVelocity = (segmentEnd.Location - segmentStart.Location) / DeltaTime;
+    //
+    //    const int32 LastSegmentStartIndex = Path->GetPathPoints().Num() - 2;
+    //    const bool bNotFollowingLastSegment = (MoveSegmentStartIndex < LastSegmentStartIndex);
+    //
+    //    PostProcessMove.ExecuteIfBound(this, MoveVelocity);
+    //    NavMovementInterface->RequestDirectMove(MoveVelocity, bNotFollowingLastSegment);
+    //
+    //    // Update navigation along path (move along)
+    //}
 }
 
 /**
@@ -51,6 +58,11 @@ void USDTPathFollowingComponent::FollowPathSegment(float DeltaTime)
 void USDTPathFollowingComponent::SetMoveSegment(int32 segmentStartIndex)
 {
     Super::SetMoveSegment(segmentStartIndex);
+
+    if (!Path)
+    {
+        return;
+    }
 
     const TArray<FNavPathPoint>& points = Path->GetPathPoints();
 
