@@ -42,7 +42,11 @@ void ANavLinkProxyForJump::SmartLinkReachedForJump(AActor* MovingActor, const FV
                     0, /*= 0*/
                     0.5 /*= 0.5f */
                 );
-                               
+                   
+                if (bFound)
+                {
+                    SoftCharacter->LaunchCharacter(LaunchVelocity, true, true);
+                }
                 //UE_LOG(LogTemp, Display, TEXT("Smart link jump complete — FAILD."));
     
             },
