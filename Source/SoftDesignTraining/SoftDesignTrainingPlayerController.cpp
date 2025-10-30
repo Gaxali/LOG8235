@@ -9,6 +9,7 @@
 #include "SDTBridge.h"
 #include "SDTBoatOperator.h"
 #include "Engine/OverlapResult.h"
+#include "NavigationSystem.h" 
 
 ASoftDesignTrainingPlayerController::ASoftDesignTrainingPlayerController()
 {
@@ -81,11 +82,99 @@ void ASoftDesignTrainingPlayerController::ZoomCamera(float axisValue)
     }
 }
 
+#include "NavigationPath.h"
+
+void ASoftDesignTrainingPlayerController::DebugDrawCalculatedPath(UNavigationPath* NavPath)
+{
+    UE_LOG(LogTemp, Display, TEXT("Path found with %d points."), NavPath->PathPoints.Num());
+
+    if (NavPath->PathPoints.IsEmpty())
+        return;
+
+    // Visualize it
+    for (int32 i = 0; i < NavPath->PathPoints.Num() - 1; ++i)
+    {
+        //DrawDebugSphere(GetWorld(), NavPath->PathPoints[i], 25.f, 8, FColor::Green, false, 3.f);
+        FVector StartSegment = NavPath->PathPoints[i];
+        FVector EndSegment = NavPath->PathPoints[i + 1];
+
+        DrawDebugLine(
+            GetWorld(),
+            StartSegment,
+            EndSegment,
+            FColor::Green,
+            false,   // persistent lines? (false means they disappear after time)
+            5.0f,    // duration in seconds
+            0,
+            6.0f     // thickness
+        );
+
+        // Draw small spheres at the path points
+        DrawDebugSphere(GetWorld(), StartSegment, 20.f, 12, FColor::Yellow, false, 5.0f);
+    }
+
+    // Draw the last point
+    DrawDebugSphere(GetWorld(), NavPath->PathPoints.Last(), 25.f, 12, FColor::Red, false, 5.0f);
+}
+
 void ASoftDesignTrainingPlayerController::MoveCharacter()
 {
     // TODO : find the position of the mouse in the world 
     // And move the agent to this position IF possible
     // Validate you can move through m_CanMoveCharacter
+    
+    FVector WorldLocation;
+    FVector WorldDirection;
+
+    DeprojectMousePositionToWorld(WorldLocation, WorldDirection);
+
+    FHitResult ResultOut;
+    FCollisionObjectQueryParams QueryParams;
+    QueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
+
+    FVector StartLocation = WorldLocation;
+    FVector EndLocation = WorldLocation + 10000.f * WorldDirection;
+
+    bool Success = GetWorld()->LineTraceSingleByObjectType(ResultOut,
+        StartLocation,
+        EndLocation,
+        QueryParams);
+
+    if (Success)
+    {
+        if (m_CanMoveCharacter)
+        {
+            UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+            
+            if (NavSys)
+            {
+                FNavLocation Projected;
+
+                if (NavSys->ProjectPointToNavigation(ResultOut.ImpactPoint, Projected))
+                {
+                    ACharacter* MyChar = Cast<ACharacter>(GetPawn());
+                    if (MyChar)
+                    {
+                        UNavigationPath* NavPath = NavSys->FindPathToLocationSynchronously(
+                            GetWorld(),
+                            MyChar->GetActorLocation(),
+                            Projected.Location,
+                            MyChar
+                        );
+
+                        if (NavPath)
+                        {
+                            DebugDrawCalculatedPath(NavPath);
+                            UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, Projected.Location);
+                        }
+                                                
+                        //DrawDebugDirectionalArrow(GetWorld(), StartLocation, EndLocation, 2, FColor::Red, false, 3.f);
+                        //DrawDebugSphere(GetWorld(), ResultOut.ImpactPoint, 10, 16, FColor::Green, false, 3, 0, 2);
+                    }
+                }
+            }
+        }
+    }
 }
 
 void ASoftDesignTrainingPlayerController::Activate()

@@ -38,6 +38,9 @@ protected:
 
     ASDTBridge* m_BridgeActivated;
     ASDTBoatOperator* m_BoatOperatorActivated;
+
+private:
+    void DebugDrawCalculatedPath(UNavigationPath* NavPath);
 };
 
 
