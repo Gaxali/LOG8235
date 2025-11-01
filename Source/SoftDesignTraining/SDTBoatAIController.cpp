@@ -28,7 +28,8 @@ void ASDTBoatAIController::GoToBestTarget(float deltaTime)
 
 			if (actor != nullptr)
 			{
-				// TODO : Agents wants to move towards actor
+				MoveToActor(actor, 5.0f);
+				m_ReachedTarget = false;
 
 				m_BoatState = BoatState::GO_TO_START_BRIDGE;
 			}
@@ -70,6 +71,8 @@ void ASDTBoatAIController::GoToBestTarget(float deltaTime)
 					// TODO : we want to move the agent towards the DropLocation of the boatOperator 
 					// Check ASDTBoatOperator::GetDropLocation to get the location.
 					// Note that m_ReachedTarget should be set to FALSE if the move is valid!
+					MoveToLocation(boatOperator->GetDropLocation());
+					m_ReachedTarget = false;
 
 					break;
 				}
@@ -104,6 +107,8 @@ void ASDTBoatAIController::GoToBestTarget(float deltaTime)
 				if (actor != nullptr)
 				{
 					// TODO : Agents wants to move towards actor
+					MoveToActor(actor, 5.0f);
+					m_ReachedTarget = false;
 				}
 			}
 
@@ -134,6 +139,8 @@ void ASDTBoatAIController::NotifyUnloadComplete()
 	if (actor != nullptr)
 	{
 		// TODO : Agents wants to move towards actor
+		MoveToActor(actor, 5.0f);
+		m_ReachedTarget = false;
 	}
 }
 
