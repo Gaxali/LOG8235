@@ -13,6 +13,8 @@
 
 #include "NavigationSystem.h"
 
+#include "SDTNavArea_Jump.h"
+
 ASDTAIController::ASDTAIController(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer.SetDefaultSubobjectClass<USDTPathFollowingComponent>(TEXT("PathFollowingComponent")))
 {
@@ -39,7 +41,8 @@ void ASDTAIController::GoToBestTarget(float deltaTime)
             
             if (actor != nullptr)
             {
-                // TODO : Agents wants to move towards actor
+                MoveToActor(actor, 5.0f);
+                m_ReachedTarget = false;
 
                 m_PedestrianState = PedestrianState::GO_TO_BRIDGE;
             }
@@ -72,7 +75,8 @@ void ASDTAIController::GoToBestTarget(float deltaTime)
             
             if (actor != nullptr)
             {
-                // TODO : Agents wants to move towards actor
+                MoveToActor(actor, 5.0f);
+                m_ReachedTarget = false;
             }
             
             break;
@@ -121,6 +125,22 @@ void ASDTAIController::ShowNavigationPath()
     // Use the UPathFollowingComponent of the AIController to get the path
     // This function is called while m_ReachedTarget is false 
     // Check void ASDTBaseAIController::Tick for how it works.
+    UPathFollowingComponent* PathComponent = GetPathFollowingComponent();
+
+    const FNavPathSharedPtr NavPath = PathComponent->GetPath();
+
+    const TArray<FNavPathPoint>& PathPoints = NavPath->GetPathPoints();
+
+    for (int32 i = 0; i < PathPoints.Num(); i++)
+    {
+        DrawDebugSphere(GetWorld(), PathPoints[i].Location, 25.0f, 12, FColor::Blue, false, -1.0f, 0, 2.0f);
+
+        if (i > 0)
+        {
+            DrawDebugLine(GetWorld(), PathPoints[i - 1].Location, PathPoints[i].Location, FColor::Cyan, false, -1.0f, 0, 2.0f);
+        }
+    }
+
 }
 
 void ASDTAIController::AIStateInterrupted()
