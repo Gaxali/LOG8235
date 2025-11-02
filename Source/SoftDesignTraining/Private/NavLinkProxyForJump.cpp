@@ -22,6 +22,7 @@ void ANavLinkProxyForJump::SmartLinkReachedForJump(AActor* MovingActor, const FV
 		MaxWalkSpeed = SoftCharacter->GetCharacterMovement()->MaxWalkSpeed;
 
 		SoftCharacter->GetCharacterMovement()->MaxWalkSpeed = 0.0f;
+        SoftCharacter->m_IsAtJumpPosition = true;
 
         FTimerHandle ResumeHandle;
         GetWorldTimerManager().SetTimer(
@@ -46,6 +47,7 @@ void ANavLinkProxyForJump::SmartLinkReachedForJump(AActor* MovingActor, const FV
                 if (bFound)
                 {
                     SoftCharacter->LaunchCharacter(LaunchVelocity, true, true);
+                    SoftCharacter->m_IsAtJumpPosition = false;
                 }
                 //UE_LOG(LogTemp, Display, TEXT("Smart link jump complete — FAILD."));
     

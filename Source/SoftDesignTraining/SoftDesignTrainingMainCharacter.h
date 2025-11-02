@@ -45,4 +45,8 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
     float m_ZoomSpeed;
+
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+    bool m_IsAtJumpPosition = false;
 };
