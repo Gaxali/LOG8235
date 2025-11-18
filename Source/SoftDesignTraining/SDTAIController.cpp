@@ -102,6 +102,15 @@ void ASDTAIController::MoveToRandomCollectible()
     }
 }
 
+FVector ASDTAIController::GetTargetPlayerPos() const
+{
+    ACharacter* playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+    if (playerCharacter)
+        return playerCharacter->GetActorLocation();
+
+    return FVector::ZeroVector;
+}
+
 void ASDTAIController::MoveToPlayer()
 {
     ACharacter * playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);

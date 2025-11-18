@@ -53,6 +53,14 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
     bool Landing = false;
 
+public:
+    uint16  GetTargetPosBBKeyID() const { return m_targetPosBBKeyID; }
+    uint16  GetTargetSeenKeyID() const { return m_isTargetSeenBBKeyID; }
+    uint16  GetNextPatrolDestinationKeyID() const { return m_nextPatrolDestinationBBKeyID; }
+    uint16  GetCurrentPatrolDestinationKeyID() const { return m_currentPatrolDestinationBBKeyID; }
+
+    FVector GetTargetPlayerPos() const;
+
 protected:
 
     enum PlayerInteractionBehavior
