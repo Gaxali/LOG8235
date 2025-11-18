@@ -9,14 +9,23 @@
 /**
  * 
  */
+class UBehaviorTreeComponent;
+class UBlackboardComponent;
+class UBehaviorTree;
+
 UCLASS(ClassGroup = AI, config = Game)
 class SOFTDESIGNTRAINING_API ASDTAIController : public ASDTBaseAIController
 {
 	GENERATED_BODY()
 
+protected:
+    virtual void OnPossess(APawn* pawn) override;
+
 public:
     ASDTAIController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+    virtual void BeginPlay() override;
+    
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AI)
     float m_DetectionCapsuleHalfLength = 500.f;
 
@@ -81,4 +90,20 @@ protected:
     FRotator m_ObstacleAvoidanceRotation;
     FTimerHandle m_PlayerInteractionNoLosTimer;
     PlayerInteractionBehavior m_PlayerInteractionBehavior;
+    
+    UPROPERTY(EditAnywhere, category = Behavior)
+    UBehaviorTree* m_aiBehaviorTree;
+
+private:
+
+    UPROPERTY(transient)
+    UBehaviorTreeComponent* m_behaviorTreeComponent;
+
+    UPROPERTY(transient)
+    UBlackboardComponent* m_blackboardComponent;
+
+    uint16  m_targetPosBBKeyID;
+    uint16  m_isTargetSeenBBKeyID;
+    uint16  m_nextPatrolDestinationBBKeyID;
+    uint16  m_currentPatrolDestinationBBKeyID;
 };

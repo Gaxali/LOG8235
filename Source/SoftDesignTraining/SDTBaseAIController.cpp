@@ -11,20 +11,30 @@ ASDTBaseAIController::ASDTBaseAIController(const FObjectInitializer& ObjectIniti
     m_ReachedTarget = true;
 }
 
+void ASDTBaseAIController::BeginPlay()
+{
+    Super::BeginPlay();
+}
+
+void ASDTBaseAIController::OnPossess(APawn* pawn)
+{
+    Super::OnPossess(pawn);
+}
+
 void ASDTBaseAIController::Tick(float deltaTime)
 {
     Super::Tick(deltaTime);
 
-    UpdatePlayerInteraction(deltaTime);
+    //UpdatePlayerInteraction(deltaTime);
 
-    if (m_ReachedTarget)
-    {
-        GoToBestTarget(deltaTime);
-    }
-    else
-    {
-        ShowNavigationPath();
-    }
+    //if (m_ReachedTarget)
+    //{
+    //    GoToBestTarget(deltaTime);
+    //}
+    //else
+    //{
+    //    ShowNavigationPath();
+    //}
 }
 
 

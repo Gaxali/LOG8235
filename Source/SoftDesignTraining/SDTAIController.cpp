@@ -10,11 +10,43 @@
 //#include "UnrealMathUtility.h"
 #include "SDTUtils.h"
 #include "EngineUtils.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 ASDTAIController::ASDTAIController(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer.SetDefaultSubobjectClass<USDTPathFollowingComponent>(TEXT("PathFollowingComponent")))
 {
     m_PlayerInteractionBehavior = PlayerInteractionBehavior_Collect;
+
+    m_behaviorTreeComponent = CreateDefaultSubobject<UBehaviorTreeComponent>(TEXT("BehaviorTreeComponent"));
+    m_blackboardComponent = CreateDefaultSubobject<UBlackboardComponent>(TEXT("BlackboardComponent"));
+}
+
+void ASDTAIController::BeginPlay()
+{
+    Super::BeginPlay();
+
+    if (m_aiBehaviorTree)
+    {
+        m_behaviorTreeComponent->StartTree(*m_aiBehaviorTree);
+    }
+}
+
+void ASDTAIController::OnPossess(APawn* pawn)
+{
+    Super::OnPossess(pawn);
+
+    if (m_aiBehaviorTree)
+    {
+        m_blackboardComponent->InitializeBlackboard(*m_aiBehaviorTree->GetBlackboardAsset());
+
+        m_targetPosBBKeyID = m_blackboardComponent->GetKeyID("TargetPos");
+        m_isTargetSeenBBKeyID = m_blackboardComponent->GetKeyID("TargetIsSeen");
+        m_nextPatrolDestinationBBKeyID = m_blackboardComponent->GetKeyID("NextPatrolDest");
+        m_currentPatrolDestinationBBKeyID = m_blackboardComponent->GetKeyID("CurrentPatrolDest");
+
+    }
 }
 
 void ASDTAIController::GoToBestTarget(float deltaTime)
