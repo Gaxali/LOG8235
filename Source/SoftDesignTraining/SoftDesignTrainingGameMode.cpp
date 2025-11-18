@@ -18,6 +18,15 @@ ASoftDesignTrainingGameMode::ASoftDesignTrainingGameMode()
 	}
 }
 
+void ASoftDesignTrainingGameMode::PlayerSeenByAI(ASDTAIController* InstigatorAIController)
+{
+	if (!PlayerSeenBroadcasted)
+	{
+		OnPayerSeenChange.Broadcast(true);
+		PlayerSeenBroadcasted = true;
+	}
+}
+
 void ASoftDesignTrainingGameMode::StartPlay()
 {
     Super::StartPlay();

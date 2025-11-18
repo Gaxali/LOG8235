@@ -86,6 +86,10 @@ public:
     void RotateTowards(const FVector& targetLocation);
     void SetActorLocation(const FVector& targetLocation);
     void AIStateInterrupted();
+    bool IsTargetPlayerSeen() { return m_IsPlayerDetected; }
+
+    UFUNCTION()
+    void SetIsTargetPlayerSeen(bool IsPlayerSeen) { m_IsPlayerDetected = IsPlayerSeen; }
 
 private:
     virtual void GoToBestTarget(float deltaTime) override;
@@ -103,6 +107,8 @@ protected:
     UBehaviorTree* m_aiBehaviorTree;
 
 private:
+
+    bool m_IsPlayerDetected = false;
 
     UPROPERTY(transient)
     UBehaviorTreeComponent* m_behaviorTreeComponent;

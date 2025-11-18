@@ -15,14 +15,16 @@ void UBTService_IsPlayerSeen::TickNode(UBehaviorTreeComponent& OwnerComp, uint8*
 {
     if (ASDTAIController* aiController = Cast<ASDTAIController>(OwnerComp.GetAIOwner()))
     {
-        if (aiController->PlayerInteractionLoSUpdate())
+        aiController->PlayerInteractionLoSUpdate();
+
+        if (aiController->IsTargetPlayerSeen())
         {
             OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(aiController->GetTargetSeenKeyID(), true);
         }
-        else
-        {
-            OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(aiController->GetTargetSeenKeyID(), false);
-        }
+        //else
+        //{
+        //    OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(aiController->GetTargetSeenKeyID(), false);
+        //}
         //if (aiBase->IsTargetPlayerSeen())
         //{
         //    //write to bb that the player is seen

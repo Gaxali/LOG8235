@@ -13,6 +13,7 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "SoftDesignTrainingGameMode.h"
 
 ASDTAIController::ASDTAIController(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer.SetDefaultSubobjectClass<USDTPathFollowingComponent>(TEXT("PathFollowingComponent")))
@@ -46,6 +47,11 @@ void ASDTAIController::OnPossess(APawn* pawn)
         m_nextPatrolDestinationBBKeyID = m_blackboardComponent->GetKeyID("NextPatrolDest");
         m_currentPatrolDestinationBBKeyID = m_blackboardComponent->GetKeyID("CurrentPatrolDest");
 
+        ASoftDesignTrainingGameMode* GM = GetWorld()->GetAuthGameMode<ASoftDesignTrainingGameMode>();
+        if (GM)
+        {
+            GM->OnPayerSeenChange.AddDynamic(this, &ASDTAIController::SetIsTargetPlayerSeen);
+        }
     }
 }
 
@@ -152,6 +158,13 @@ bool ASDTAIController::PlayerInteractionLoSUpdate()
             m_PlayerInteractionNoLosTimer.Invalidate();
             DrawDebugString(GetWorld(), FVector(0.f, 0.f, 10.f), "Got LoS", GetPawn(), FColor::Red, 5.f, false);
         }
+
+        ASoftDesignTrainingGameMode* GM = GetWorld()->GetAuthGameMode<ASoftDesignTrainingGameMode>();
+        if (GM)
+        {
+            GM->PlayerSeenByAI(this);
+        }
+
         return true;
     }
     else
