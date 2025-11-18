@@ -61,7 +61,7 @@ public:
 
     FVector GetTargetPlayerPos() const;
 
-protected:
+public:
 
     enum PlayerInteractionBehavior
     {
@@ -77,7 +77,7 @@ protected:
     void MoveToRandomCollectible();
     void MoveToPlayer();
     void MoveToBestFleeLocation();
-    void PlayerInteractionLoSUpdate();
+    bool PlayerInteractionLoSUpdate();
     void OnPlayerInteractionNoLosDone();
     void OnMoveToTarget();
 

@@ -121,11 +121,11 @@ void ASDTAIController::MoveToPlayer()
     OnMoveToTarget();
 }
 
-void ASDTAIController::PlayerInteractionLoSUpdate()
+bool ASDTAIController::PlayerInteractionLoSUpdate()
 {
     ACharacter * playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
     if (!playerCharacter)
-        return;
+        return false;
 
     TArray<TEnumAsByte<EObjectTypeQuery>> TraceObjectTypes;
     TraceObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
@@ -152,6 +152,7 @@ void ASDTAIController::PlayerInteractionLoSUpdate()
             m_PlayerInteractionNoLosTimer.Invalidate();
             DrawDebugString(GetWorld(), FVector(0.f, 0.f, 10.f), "Got LoS", GetPawn(), FColor::Red, 5.f, false);
         }
+        return true;
     }
     else
     {
@@ -160,8 +161,8 @@ void ASDTAIController::PlayerInteractionLoSUpdate()
             GetWorld()->GetTimerManager().SetTimer(m_PlayerInteractionNoLosTimer, this, &ASDTAIController::OnPlayerInteractionNoLosDone, 3.f, false);
             DrawDebugString(GetWorld(), FVector(0.f, 0.f, 10.f), "Lost LoS", GetPawn(), FColor::Red, 5.f, false);
         }
+        return false;
     }
-    
 }
 
 void ASDTAIController::OnPlayerInteractionNoLosDone()
