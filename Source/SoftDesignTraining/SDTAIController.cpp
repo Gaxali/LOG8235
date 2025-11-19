@@ -22,6 +22,8 @@ ASDTAIController::ASDTAIController(const FObjectInitializer& ObjectInitializer)
 
     m_behaviorTreeComponent = CreateDefaultSubobject<UBehaviorTreeComponent>(TEXT("BehaviorTreeComponent"));
     m_blackboardComponent = CreateDefaultSubobject<UBlackboardComponent>(TEXT("BlackboardComponent"));
+
+    m_ReachedTarget = false;
 }
 
 void ASDTAIController::BeginPlay()
@@ -32,6 +34,8 @@ void ASDTAIController::BeginPlay()
     {
         m_behaviorTreeComponent->StartTree(*m_aiBehaviorTree);
     }
+
+    
 }
 
 void ASDTAIController::OnPossess(APawn* pawn)
@@ -46,7 +50,8 @@ void ASDTAIController::OnPossess(APawn* pawn)
         m_isTargetSeenBBKeyID = m_blackboardComponent->GetKeyID("TargetIsSeen");
         m_nextPatrolDestinationBBKeyID = m_blackboardComponent->GetKeyID("NextPatrolDest");
         m_currentPatrolDestinationBBKeyID = m_blackboardComponent->GetKeyID("CurrentPatrolDest");
-
+        m_isSelectedForTacticalGroupID = m_blackboardComponent->GetKeyID("SelectedForTacticalGroup");
+        m_arrivedToTacticalPositionID = m_blackboardComponent->GetKeyID("ArrivedToTacticalPosition");
         ASoftDesignTrainingGameMode* GM = GetWorld()->GetAuthGameMode<ASoftDesignTrainingGameMode>();
         if (GM)
         {
@@ -259,7 +264,10 @@ void ASDTAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollow
 {
     Super::OnMoveCompleted(RequestID, Result);
 
-    m_ReachedTarget = true;
+    if (Result.IsSuccess())
+    {
+        m_ReachedTarget = true;
+    }
 }
 
 void ASDTAIController::ShowNavigationPath()
@@ -314,7 +322,7 @@ void ASDTAIController::UpdatePlayerInteraction(float deltaTime)
 
     if (GetMoveStatus() == EPathFollowingStatus::Idle)
     {
-        m_ReachedTarget = true;
+        //m_ReachedTarget = true;
     }
 
     FString debugString = "";
@@ -360,7 +368,7 @@ bool ASDTAIController::HasLoSOnHit(const FHitResult& hit)
 void ASDTAIController::AIStateInterrupted()
 {
     StopMovement();
-    m_ReachedTarget = true;
+    //m_ReachedTarget = true;
 }
 
 ASDTAIController::PlayerInteractionBehavior ASDTAIController::GetCurrentPlayerInteractionBehavior(const FHitResult& hit)

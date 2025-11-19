@@ -15,7 +15,7 @@ EBTNodeResult::Type UBTTask_TacticalPositionAssigned::ExecuteTask(UBehaviorTreeC
     {
         if (OwnerComp.GetBlackboardComponent()->GetValue<UBlackboardKeyType_Bool>(aiController->GetTargetSeenKeyID()))
         {
-            OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Vector>(aiController->GetTargetPosBBKeyID(), aiController->GetTargetPlayerPos());
+            //OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Vector>(aiController->GetTargetPosBBKeyID(), aiController->GetTargetPlayerPos());
 
             FVector npcPosition = aiController->GetPawn()->GetActorLocation();
             FVector npcHead = npcPosition + FVector::UpVector * 200.0f;

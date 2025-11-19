@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "SDTBaseAIController.h"
+#include "Navigation/PathFollowingComponent.h"
 #include "SDTAIController.generated.h"
 
 /**
@@ -58,7 +59,8 @@ public:
     uint16  GetTargetSeenKeyID() const { return m_isTargetSeenBBKeyID; }
     uint16  GetNextPatrolDestinationKeyID() const { return m_nextPatrolDestinationBBKeyID; }
     uint16  GetCurrentPatrolDestinationKeyID() const { return m_currentPatrolDestinationBBKeyID; }
-
+    uint16  GetIsSelectedForTacticalGroupID() const { return m_isSelectedForTacticalGroupID; }
+    uint16  GetArrivedToTacticalPositionID() const { return m_arrivedToTacticalPositionID; }
     FVector GetTargetPlayerPos() const;
 
 public:
@@ -87,9 +89,11 @@ public:
     void SetActorLocation(const FVector& targetLocation);
     void AIStateInterrupted();
     bool IsTargetPlayerSeen() { return m_IsPlayerDetected; }
-
+    
     UFUNCTION()
     void SetIsTargetPlayerSeen(bool IsPlayerSeen) { m_IsPlayerDetected = IsPlayerSeen; }
+
+    bool m_ReachedTarget;
 
 private:
     virtual void GoToBestTarget(float deltaTime) override;
@@ -118,6 +122,8 @@ private:
 
     uint16  m_targetPosBBKeyID;
     uint16  m_isTargetSeenBBKeyID;
+    uint16  m_isSelectedForTacticalGroupID;
     uint16  m_nextPatrolDestinationBBKeyID;
     uint16  m_currentPatrolDestinationBBKeyID;
+    uint16  m_arrivedToTacticalPositionID;
 };
