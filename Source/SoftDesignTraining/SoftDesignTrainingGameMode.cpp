@@ -4,6 +4,7 @@
 #include "SoftDesignTraining.h"
 #include "SoftDesignTrainingPlayerController.h"
 #include "SoftDesignTrainingCharacter.h"
+#include "EnvironmentQuery/EnvQueryManager.h"
 
 ASoftDesignTrainingGameMode::ASoftDesignTrainingGameMode()
 {
@@ -18,12 +19,38 @@ ASoftDesignTrainingGameMode::ASoftDesignTrainingGameMode()
 	}
 }
 
+void ASoftDesignTrainingGameMode::OnQueryTacticalPositionsAttack(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
+{
+	if (QueryStatus != EEnvQueryStatus::Success)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Spawn bot EQS Query Failed!"));
+		return;
+	}
+
+	TArray<FVector> Locations = QueryInstance->GetResultsAsLocations();
+
+	if (Locations.IsValidIndex(0))//Locations.Num() > 0)
+	{
+		//GetWorld()->SpawnActor<AActor>(MinionClass, Locations[0], FRotator::ZeroRotator);
+
+		//DrawDebugSphere(GetWorld(), Locations[0], 50.0f, 20, FColor::Blue, false, 60.0f);
+	}
+}
+
 void ASoftDesignTrainingGameMode::PlayerSeenByAI(ASDTAIController* InstigatorAIController)
 {
 	if (!PlayerSeenBroadcasted)
 	{
-		OnPayerSeenChange.Broadcast(true);
-		PlayerSeenBroadcasted = true;
+		if (TacticalAttackPositionsQuery)
+		{
+			UEnvQueryInstanceBlueprintWrapper* QueryInst = UEnvQueryManager::RunEQSQuery(this, TacticalAttackPositionsQuery, this, EEnvQueryRunMode::AllMatching, nullptr);
+			OnPayerSeenChange.Broadcast(true);
+			PlayerSeenBroadcasted = true;
+
+			// Can run in multiple frames
+			QueryInst->GetOnQueryFinishedEvent().AddDynamic(this, &ASoftDesignTrainingGameMode::OnQueryTacticalPositionsAttack);
+	
+		}
 	}
 }
 

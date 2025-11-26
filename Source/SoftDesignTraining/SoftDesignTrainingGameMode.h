@@ -2,10 +2,12 @@
 #pragma once
 #include "GameFramework/GameMode.h"
 #include "SDTAIController.h"
+#include "EnvironmentQuery/EnvQueryTypes.h"
 #include "SoftDesignTrainingGameMode.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTacticalChanged, bool, TacticalChange);
 
+class UEnvQuery;
 
 UCLASS(minimalapi)
 class ASoftDesignTrainingGameMode : public AGameMode
@@ -21,6 +23,14 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnTacticalChanged OnPayerSeenChange;
+
+protected:
+
+	UPROPERTY(EditDefaultsOnly, Category = "AI")
+	UEnvQuery* TacticalAttackPositionsQuery;
+
+	UFUNCTION()
+	void OnQueryTacticalPositionsAttack(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
 
 private:
 	bool PlayerSeenBroadcasted = false;
