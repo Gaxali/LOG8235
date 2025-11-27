@@ -39,29 +39,31 @@ void ASoftDesignTrainingGameMode::OnQueryTacticalPositionsAttack(UEnvQueryInstan
 
 		if (AIController)
 		{
+			auto AIPosition = AIController->GetPawn()->GetActorLocation();
+
 			if (Locations.Num() > 0)
 			{
-				AIController->TargetPos = Locations.Pop(EAllowShrinking::Yes);
-				DrawDebugSphere(GetWorld(), AIController->TargetPos, 50.0f, 20, FColor::Blue, false, 60.0f);
+				Locations.Sort([AIPosition](const FVector& A, const FVector& B)
+				{
+					return FVector::DistSquared(A, AIPosition) < FVector::DistSquared(B, AIPosition);
+				});
+
+				FVector Closest = Locations[0];
+
+				// Remove it
+				Locations.RemoveAt(0);
+
+				AIController->TargetPos = Closest;
+				DrawDebugSphere(GetWorld(), Closest, 50.0f, 20, FColor::Blue, false, 60.0f);
 			}
-				
+			else
+			{
+				AIController->TargetPos = AIPosition;
+			}
 		}
-		//Bot->GetController()
-
-		//USAttributeComponent* AttributeComp = USAttributeComponent::GetAttributes(Bot);
-
-		//if (ensure(AttributeComp) && AttributeComp->IsAlive())
-		//{
-		//	AttributeComp->Kill(this); //@fixme: pass in player? for kill credit
-		//}
 	}
 
 	OnPayerSeenChange.Broadcast(true);
-
-	//GetWorld()->SpawnActor<AActor>(MinionClass, Locations[0], FRotator::ZeroRotator);
-
-	//DrawDebugSphere(GetWorld(), Locations[0], 50.0f, 20, FColor::Blue, false, 60.0f);
-	
 }
 
 void ASoftDesignTrainingGameMode::PlayerSeenByAI(ASDTAIController* InstigatorAIController)
