@@ -30,36 +30,38 @@ void ASoftDesignTrainingGameMode::OnQueryTacticalPositionsAttack(UEnvQueryInstan
 	}
 
 	TArray<FVector> Locations = QueryInstance->GetResultsAsLocations();
-
-	if (Locations.IsValidIndex(0))//Locations.Num() > 0)
+		
+	for (TActorIterator<ASoftDesignTrainingCharacter> It(GetWorld()); It; ++It)
 	{
-		for (TActorIterator<ASoftDesignTrainingCharacter> It(GetWorld()); It; ++It)
-		{
-			ASoftDesignTrainingCharacter* Bot = *It;
+		ASoftDesignTrainingCharacter* Bot = *It;
 			
-			ASDTAIController* AIController = Cast<ASDTAIController>(Bot->GetController());
+		ASDTAIController* AIController = Cast<ASDTAIController>(Bot->GetController());
 
-			if (AIController)
+		if (AIController)
+		{
+			if (Locations.Num() > 0)
 			{
-				AIController->TargetPos = Locations[0];
-				DrawDebugSphere(GetWorld(), Locations[0], 50.0f, 20, FColor::Blue, false, 60.0f);
+				AIController->TargetPos = Locations.Pop(EAllowShrinking::Yes);
+				DrawDebugSphere(GetWorld(), AIController->TargetPos, 50.0f, 20, FColor::Blue, false, 60.0f);
 			}
-			//Bot->GetController()
-
-			//USAttributeComponent* AttributeComp = USAttributeComponent::GetAttributes(Bot);
-
-			//if (ensure(AttributeComp) && AttributeComp->IsAlive())
-			//{
-			//	AttributeComp->Kill(this); //@fixme: pass in player? for kill credit
-			//}
+				
 		}
+		//Bot->GetController()
 
-		OnPayerSeenChange.Broadcast(true);
+		//USAttributeComponent* AttributeComp = USAttributeComponent::GetAttributes(Bot);
 
-		//GetWorld()->SpawnActor<AActor>(MinionClass, Locations[0], FRotator::ZeroRotator);
-
-		//DrawDebugSphere(GetWorld(), Locations[0], 50.0f, 20, FColor::Blue, false, 60.0f);
+		//if (ensure(AttributeComp) && AttributeComp->IsAlive())
+		//{
+		//	AttributeComp->Kill(this); //@fixme: pass in player? for kill credit
+		//}
 	}
+
+	OnPayerSeenChange.Broadcast(true);
+
+	//GetWorld()->SpawnActor<AActor>(MinionClass, Locations[0], FRotator::ZeroRotator);
+
+	//DrawDebugSphere(GetWorld(), Locations[0], 50.0f, 20, FColor::Blue, false, 60.0f);
+	
 }
 
 void ASoftDesignTrainingGameMode::PlayerSeenByAI(ASDTAIController* InstigatorAIController)
