@@ -30,20 +30,43 @@ void ASoftDesignTrainingGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (FVector::DistSquared(PlayerLKP, SoftPlayerController->GetPawn()->GetActorLocation()) > 25.0)
+	//Update Tactical group
+	if (FVector::DistSquared(PlayerLKP, SoftPlayerController->GetPawn()->GetActorLocation()) > 250000.0)
 	{
-		if (TacticalAttackPositionsQuery && PlayerSeenBroadcasted)
-		{
-			UEnvQueryInstanceBlueprintWrapper* QueryInst = UEnvQueryManager::RunEQSQuery(this, TacticalAttackPositionsQuery, this, EEnvQueryRunMode::AllMatching, nullptr);
-			// Can run in multiple frames
-			QueryInst->GetOnQueryFinishedEvent().AddDynamic(this, &ASoftDesignTrainingGameMode::OnQueryTacticalPositionsAttack);
-		}
+		RunEQSForTacticalGroupCreation();
 
 		PlayerLKP = SoftPlayerController->GetPawn()->GetActorLocation();
 	}
 
+	for (ASDTAIController* AIController : AIControllersTacticalGroup)
+	{
+		FVector npcPosition = AIController->GetPawn()->GetActorLocation();
+		FVector npcHead = npcPosition + FVector::UpVector * 200.0f;
+		UWorld* npcWorld = GetWorld();
+
+		DrawDebugSphere(npcWorld, npcHead, 20.0f, 32, FColor::Magenta);
+	}
 	// Your logic here
 }
+
+void ASoftDesignTrainingGameMode::RunEQSForTacticalGroupCreation()
+{
+	if (TacticalAttackPositionsQuery)
+	{
+		UEnvQueryInstanceBlueprintWrapper* QueryInst = UEnvQueryManager::RunEQSQuery(this, TacticalAttackPositionsQuery, this, EEnvQueryRunMode::AllMatching, nullptr);
+
+		// Can run in multiple frames
+		QueryInst->GetOnQueryFinishedEvent().AddDynamic(this, &ASoftDesignTrainingGameMode::OnQueryTacticalPositionsAttack);
+	}
+}
+
+//void ASoftDesignTrainingGameMode::SortTacticalGroupBasePlayerLKP()
+//{
+//	AIControllersTacticalGroup.Sort([PlayerLKP = PlayerLKP](ASDTAIController& A, ASDTAIController& B)
+//		{
+//			return FVector::DistSquared(A.GetPawn()->GetActorLocation(), PlayerLKP) < FVector::DistSquared(B.GetPawn()->GetActorLocation(), PlayerLKP);
+//		});
+//}
 
 void ASoftDesignTrainingGameMode::OnQueryTacticalPositionsAttack(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
 {
@@ -55,9 +78,15 @@ void ASoftDesignTrainingGameMode::OnQueryTacticalPositionsAttack(UEnvQueryInstan
 
 	TArray<FVector> Locations = QueryInstance->GetResultsAsLocations();
 	
-	// Sort AI array base on player position//
-	TArray<ASDTAIController*> AIControllers;
+	if (SoftPlayerController)
+	{
+		PlayerLKP = SoftPlayerController->GetPawn()->GetActorLocation();
+	}
 
+	TArray<ASDTAIController*> GroupTemporal;
+
+	//if (AIControllersTacticalGroup.IsEmpty())
+	//{
 	for (TActorIterator<ASoftDesignTrainingCharacter> It(GetWorld()); It; ++It)
 	{
 		ASoftDesignTrainingCharacter* Bot = *It;
@@ -66,22 +95,38 @@ void ASoftDesignTrainingGameMode::OnQueryTacticalPositionsAttack(UEnvQueryInstan
 
 		if (AIController)
 		{
-			AIControllers.Add(AIController);
+			GroupTemporal.Add(AIController);
+		}
+	}
+	//}
+	// Sort group base on player LKP
+	GroupTemporal.Sort([PlayerLKP = PlayerLKP](ASDTAIController& A, ASDTAIController& B)
+		{
+			return FVector::DistSquared(A.GetPawn()->GetActorLocation(), PlayerLKP) < FVector::DistSquared(B.GetPawn()->GetActorLocation(), PlayerLKP);
+		});
+
+	// keep the closest to the player
+	int32 Count = FMath::Min(Locations.Num(), GroupTemporal.Num());
+
+	for (int32 i = 0; i < Count; ++i)
+	{
+		ASDTAIController* Controller = GroupTemporal[i];
+
+		if (!AIControllersTacticalGroup.Contains(Controller))
+		{
+			AIControllersTacticalGroup.Add(Controller);
 		}
 	}
 
-	if (SoftPlayerController)
+	// Set TargetPos for all
+	for (ASDTAIController* AIController : GroupTemporal)
 	{
-		PlayerLKP = SoftPlayerController->GetPawn()->GetActorLocation();
-
-		AIControllers.Sort([PlayerLKP = PlayerLKP](ASDTAIController& A, ASDTAIController& B)
-			{
-				return FVector::DistSquared(A.GetPawn()->GetActorLocation(), PlayerLKP) < FVector::DistSquared(B.GetPawn()->GetActorLocation(), PlayerLKP);
-			});
+		auto AIPosition = AIController->GetPawn()->GetActorLocation();
+		AIController->TargetPos = AIPosition;
 	}
-	///////////////////////////////////////////
 
-	for (ASDTAIController* AIController : AIControllers)
+	// Assing tactical positions to the group
+	for (ASDTAIController* AIController : AIControllersTacticalGroup)
 	{
 		auto AIPosition = AIController->GetPawn()->GetActorLocation();
 
@@ -112,16 +157,9 @@ void ASoftDesignTrainingGameMode::OnQueryTacticalPositionsAttack(UEnvQueryInstan
 
 void ASoftDesignTrainingGameMode::PlayerSeenByAI(ASDTAIController* InstigatorAIController)
 {
-	if (!PlayerSeenBroadcasted)
+	if (AIControllersTacticalGroup.IsEmpty())
 	{
-		if (TacticalAttackPositionsQuery)
-		{
-			UEnvQueryInstanceBlueprintWrapper* QueryInst = UEnvQueryManager::RunEQSQuery(this, TacticalAttackPositionsQuery, this, EEnvQueryRunMode::AllMatching, nullptr);
-			PlayerSeenBroadcasted = true;
-
-			// Can run in multiple frames
-			QueryInst->GetOnQueryFinishedEvent().AddDynamic(this, &ASoftDesignTrainingGameMode::OnQueryTacticalPositionsAttack);
-		}
+		RunEQSForTacticalGroupCreation();
 	}
 }
 

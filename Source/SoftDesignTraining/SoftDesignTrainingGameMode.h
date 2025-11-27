@@ -37,12 +37,16 @@ protected:
 	void OnQueryTacticalPositionsAttack(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
 
 private:
-	bool PlayerSeenBroadcasted = false;
+	//void SortTacticalGroupBasePlayerLKP();
+	void RunEQSForTacticalGroupCreation();
 
+private:
+	
 	FVector PlayerLKP;
 
 	ASoftDesignTrainingPlayerController* SoftPlayerController = nullptr;
 
+	TArray<ASDTAIController*> AIControllersTacticalGroup;
 };
 
 
