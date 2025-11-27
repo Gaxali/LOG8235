@@ -8,6 +8,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTacticalChanged, bool, TacticalChange);
 
 class UEnvQuery;
+class ASoftDesignTrainingPlayerController;
 
 UCLASS(minimalapi)
 class ASoftDesignTrainingGameMode : public AGameMode
@@ -20,6 +21,9 @@ public:
     virtual void StartPlay() override;
 
 	void PlayerSeenByAI(ASDTAIController* InstigatorAIController);
+
+	void Tick(float DeltaSeconds) override;
+	
 
 	UPROPERTY(BlueprintAssignable)
 	FOnTacticalChanged OnPayerSeenChange;
@@ -34,6 +38,10 @@ protected:
 
 private:
 	bool PlayerSeenBroadcasted = false;
+
+	FVector PlayerLKP;
+
+	ASoftDesignTrainingPlayerController* SoftPlayerController = nullptr;
 
 };
 

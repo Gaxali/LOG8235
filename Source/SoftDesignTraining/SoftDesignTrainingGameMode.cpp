@@ -19,6 +19,30 @@ ASoftDesignTrainingGameMode::ASoftDesignTrainingGameMode()
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
+
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
+
+	SoftPlayerController = nullptr;
+}
+
+void ASoftDesignTrainingGameMode::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (FVector::DistSquared(PlayerLKP, SoftPlayerController->GetPawn()->GetActorLocation()) > 25.0)
+	{
+		if (TacticalAttackPositionsQuery && PlayerSeenBroadcasted)
+		{
+			UEnvQueryInstanceBlueprintWrapper* QueryInst = UEnvQueryManager::RunEQSQuery(this, TacticalAttackPositionsQuery, this, EEnvQueryRunMode::AllMatching, nullptr);
+			// Can run in multiple frames
+			QueryInst->GetOnQueryFinishedEvent().AddDynamic(this, &ASoftDesignTrainingGameMode::OnQueryTacticalPositionsAttack);
+		}
+
+		PlayerLKP = SoftPlayerController->GetPawn()->GetActorLocation();
+	}
+
+	// Your logic here
 }
 
 void ASoftDesignTrainingGameMode::OnQueryTacticalPositionsAttack(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
@@ -31,8 +55,6 @@ void ASoftDesignTrainingGameMode::OnQueryTacticalPositionsAttack(UEnvQueryInstan
 
 	TArray<FVector> Locations = QueryInstance->GetResultsAsLocations();
 	
-	ASoftDesignTrainingPlayerController* SoftPlayerController = nullptr;
-
 	// Sort AI array base on player position//
 	TArray<ASDTAIController*> AIControllers;
 
@@ -46,21 +68,15 @@ void ASoftDesignTrainingGameMode::OnQueryTacticalPositionsAttack(UEnvQueryInstan
 		{
 			AIControllers.Add(AIController);
 		}
-		else
-		{
-			ASoftDesignTrainingPlayerController* PlayerController = Cast<ASoftDesignTrainingPlayerController>(Bot->GetController());
-			
-			if (PlayerController)
-				SoftPlayerController = PlayerController;
-		}
 	}
 
 	if (SoftPlayerController)
 	{
-		AIControllers.Sort([SoftPlayerController](ASDTAIController& A, ASDTAIController& B)
+		PlayerLKP = SoftPlayerController->GetPawn()->GetActorLocation();
+
+		AIControllers.Sort([PlayerLKP = PlayerLKP](ASDTAIController& A, ASDTAIController& B)
 			{
-				FVector PlayerPos = SoftPlayerController->GetPawn()->GetActorLocation();
-				return FVector::DistSquared(A.GetPawn()->GetActorLocation(), PlayerPos) < FVector::DistSquared(B.GetPawn()->GetActorLocation(), PlayerPos);
+				return FVector::DistSquared(A.GetPawn()->GetActorLocation(), PlayerLKP) < FVector::DistSquared(B.GetPawn()->GetActorLocation(), PlayerLKP);
 			});
 	}
 	///////////////////////////////////////////
@@ -82,7 +98,7 @@ void ASoftDesignTrainingGameMode::OnQueryTacticalPositionsAttack(UEnvQueryInstan
 			Locations.RemoveAt(0);
 
 			AIController->TargetPos = Closest;
-			DrawDebugSphere(GetWorld(), Closest, 50.0f, 10, FColor::Blue, false, 60.0f);
+			DrawDebugSphere(GetWorld(), Closest, 50.0f, 10, FColor::Blue, false, 0.5f);
 		}
 		else
 		{
@@ -105,7 +121,6 @@ void ASoftDesignTrainingGameMode::PlayerSeenByAI(ASDTAIController* InstigatorAIC
 
 			// Can run in multiple frames
 			QueryInst->GetOnQueryFinishedEvent().AddDynamic(this, &ASoftDesignTrainingGameMode::OnQueryTacticalPositionsAttack);
-	
 		}
 	}
 }
@@ -115,4 +130,12 @@ void ASoftDesignTrainingGameMode::StartPlay()
     Super::StartPlay();
 
     GetWorld()->Exec(GetWorld(), TEXT("stat fps"));
+
+	for (TActorIterator<ASoftDesignTrainingCharacter> It(GetWorld()); It; ++It)
+	{
+		ASoftDesignTrainingPlayerController* PlayerController = Cast<ASoftDesignTrainingPlayerController>((*It)->GetController());
+
+		if (PlayerController)
+			SoftPlayerController = PlayerController;
+	}
 }
