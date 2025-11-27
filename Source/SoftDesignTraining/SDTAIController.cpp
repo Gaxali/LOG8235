@@ -48,6 +48,7 @@ void ASDTAIController::OnPossess(APawn* pawn)
 
         m_targetPosBBKeyID = m_blackboardComponent->GetKeyID("TargetPos");
         m_isTargetSeenBBKeyID = m_blackboardComponent->GetKeyID("TargetIsSeen");
+        m_isPlayerPoweredUpBBKeyID = m_blackboardComponent->GetKeyID("PlayerIsPoweredUp");
         m_nextPatrolDestinationBBKeyID = m_blackboardComponent->GetKeyID("NextPatrolDest");
         m_currentPatrolDestinationBBKeyID = m_blackboardComponent->GetKeyID("CurrentPatrolDest");
         m_isSelectedForTacticalGroupID = m_blackboardComponent->GetKeyID("SelectedForTacticalGroup");
