@@ -114,7 +114,7 @@ void ASoftDesignTrainingGameMode::OnQueryTacticalPositionsAttack(UEnvQueryInstan
 
 		if (!AIControllersTacticalGroup.Contains(Controller))
 		{
-			AIControllersTacticalGroup.Add(Controller);
+			AIControllersTacticalGroup.Insert(Controller, 0); // .Add(Controller);
 		}
 	}
 
