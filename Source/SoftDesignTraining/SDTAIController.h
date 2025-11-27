@@ -94,6 +94,7 @@ public:
     void SetIsTargetPlayerSeen(bool IsPlayerSeen) { m_IsPlayerDetected = IsPlayerSeen; }
 
     bool m_ReachedTarget;
+    FVector TargetPos;
 
 private:
     virtual void GoToBestTarget(float deltaTime) override;

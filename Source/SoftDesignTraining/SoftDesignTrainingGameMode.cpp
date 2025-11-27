@@ -5,6 +5,8 @@
 #include "SoftDesignTrainingPlayerController.h"
 #include "SoftDesignTrainingCharacter.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
+#include "EngineUtils.h" // for TActorIterator<>
+#include "SDTAIController.h"
 
 ASoftDesignTrainingGameMode::ASoftDesignTrainingGameMode()
 {
@@ -31,6 +33,29 @@ void ASoftDesignTrainingGameMode::OnQueryTacticalPositionsAttack(UEnvQueryInstan
 
 	if (Locations.IsValidIndex(0))//Locations.Num() > 0)
 	{
+		for (TActorIterator<ASoftDesignTrainingCharacter> It(GetWorld()); It; ++It)
+		{
+			ASoftDesignTrainingCharacter* Bot = *It;
+			
+			ASDTAIController* AIController = Cast<ASDTAIController>(Bot->GetController());
+
+			if (AIController)
+			{
+				AIController->TargetPos = Locations[0];
+				DrawDebugSphere(GetWorld(), Locations[0], 50.0f, 20, FColor::Blue, false, 60.0f);
+			}
+			//Bot->GetController()
+
+			//USAttributeComponent* AttributeComp = USAttributeComponent::GetAttributes(Bot);
+
+			//if (ensure(AttributeComp) && AttributeComp->IsAlive())
+			//{
+			//	AttributeComp->Kill(this); //@fixme: pass in player? for kill credit
+			//}
+		}
+
+		OnPayerSeenChange.Broadcast(true);
+
 		//GetWorld()->SpawnActor<AActor>(MinionClass, Locations[0], FRotator::ZeroRotator);
 
 		//DrawDebugSphere(GetWorld(), Locations[0], 50.0f, 20, FColor::Blue, false, 60.0f);
@@ -44,7 +69,6 @@ void ASoftDesignTrainingGameMode::PlayerSeenByAI(ASDTAIController* InstigatorAIC
 		if (TacticalAttackPositionsQuery)
 		{
 			UEnvQueryInstanceBlueprintWrapper* QueryInst = UEnvQueryManager::RunEQSQuery(this, TacticalAttackPositionsQuery, this, EEnvQueryRunMode::AllMatching, nullptr);
-			OnPayerSeenChange.Broadcast(true);
 			PlayerSeenBroadcasted = true;
 
 			// Can run in multiple frames
