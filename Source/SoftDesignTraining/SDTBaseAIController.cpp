@@ -8,7 +8,16 @@ ASDTBaseAIController::ASDTBaseAIController(const FObjectInitializer& ObjectIniti
 {
     PrimaryActorTick.bCanEverTick = true;
     PrimaryActorTick.bStartWithTickEnabled = true;
-    m_ReachedTarget = true;
+}
+
+void ASDTBaseAIController::BeginPlay()
+{
+    Super::BeginPlay();
+}
+
+void ASDTBaseAIController::OnPossess(APawn* pawn)
+{
+    Super::OnPossess(pawn);
 }
 
 void ASDTBaseAIController::Tick(float deltaTime)
@@ -17,14 +26,14 @@ void ASDTBaseAIController::Tick(float deltaTime)
 
     UpdatePlayerInteraction(deltaTime);
 
-    if (m_ReachedTarget)
-    {
-        GoToBestTarget(deltaTime);
-    }
-    else
-    {
-        ShowNavigationPath();
-    }
+    //if (m_ReachedTarget)
+    //{
+    //    GoToBestTarget(deltaTime);
+    //}
+    //else
+    //{
+    //    ShowNavigationPath();
+    //}
 }
 
 

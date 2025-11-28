@@ -4,19 +4,29 @@
 
 #include "CoreMinimal.h"
 #include "SDTBaseAIController.h"
+#include "Navigation/PathFollowingComponent.h"
 #include "SDTAIController.generated.h"
 
 /**
  * 
  */
+class UBehaviorTreeComponent;
+class UBlackboardComponent;
+class UBehaviorTree;
+
 UCLASS(ClassGroup = AI, config = Game)
 class SOFTDESIGNTRAINING_API ASDTAIController : public ASDTBaseAIController
 {
 	GENERATED_BODY()
 
+protected:
+    virtual void OnPossess(APawn* pawn) override;
+
 public:
     ASDTAIController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+    virtual void BeginPlay() override;
+    
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AI)
     float m_DetectionCapsuleHalfLength = 500.f;
 
@@ -44,7 +54,16 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
     bool Landing = false;
 
-protected:
+public:
+    uint16  GetTargetPosBBKeyID() const { return m_targetPosBBKeyID; }
+    uint16  GetTargetSeenKeyID() const { return m_isTargetSeenBBKeyID; }
+    uint16  GetNextPatrolDestinationKeyID() const { return m_nextPatrolDestinationBBKeyID; }
+    uint16  GetCurrentPatrolDestinationKeyID() const { return m_currentPatrolDestinationBBKeyID; }
+    uint16  GetIsSelectedForTacticalGroupID() const { return m_isSelectedForTacticalGroupID; }
+    uint16  GetArrivedToTacticalPositionID() const { return m_arrivedToTacticalPositionID; }
+    FVector GetTargetPlayerPos() const;
+
+public:
 
     enum PlayerInteractionBehavior
     {
@@ -60,7 +79,7 @@ protected:
     void MoveToRandomCollectible();
     void MoveToPlayer();
     void MoveToBestFleeLocation();
-    void PlayerInteractionLoSUpdate();
+    bool PlayerInteractionLoSUpdate();
     void OnPlayerInteractionNoLosDone();
     void OnMoveToTarget();
 
@@ -69,6 +88,13 @@ public:
     void RotateTowards(const FVector& targetLocation);
     void SetActorLocation(const FVector& targetLocation);
     void AIStateInterrupted();
+    bool IsTargetPlayerSeen() { return m_IsPlayerDetected; }
+    
+    UFUNCTION()
+    void SetIsTargetPlayerSeen(bool IsPlayerSeen) { m_IsPlayerDetected = IsPlayerSeen; }
+
+    bool m_ReachedTarget;
+    FVector TargetPos;
 
 private:
     virtual void GoToBestTarget(float deltaTime) override;
@@ -81,4 +107,24 @@ protected:
     FRotator m_ObstacleAvoidanceRotation;
     FTimerHandle m_PlayerInteractionNoLosTimer;
     PlayerInteractionBehavior m_PlayerInteractionBehavior;
+    
+    UPROPERTY(EditAnywhere, category = Behavior)
+    UBehaviorTree* m_aiBehaviorTree;
+
+private:
+
+    bool m_IsPlayerDetected = false;
+
+    UPROPERTY(transient)
+    UBehaviorTreeComponent* m_behaviorTreeComponent;
+
+    UPROPERTY(transient)
+    UBlackboardComponent* m_blackboardComponent;
+
+    uint16  m_targetPosBBKeyID;
+    uint16  m_isTargetSeenBBKeyID;
+    uint16  m_isSelectedForTacticalGroupID;
+    uint16  m_nextPatrolDestinationBBKeyID;
+    uint16  m_currentPatrolDestinationBBKeyID;
+    uint16  m_arrivedToTacticalPositionID;
 };

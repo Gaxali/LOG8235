@@ -10,11 +10,55 @@
 //#include "UnrealMathUtility.h"
 #include "SDTUtils.h"
 #include "EngineUtils.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "SoftDesignTrainingGameMode.h"
 
 ASDTAIController::ASDTAIController(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer.SetDefaultSubobjectClass<USDTPathFollowingComponent>(TEXT("PathFollowingComponent")))
 {
     m_PlayerInteractionBehavior = PlayerInteractionBehavior_Collect;
+
+    m_behaviorTreeComponent = CreateDefaultSubobject<UBehaviorTreeComponent>(TEXT("BehaviorTreeComponent"));
+    m_blackboardComponent = CreateDefaultSubobject<UBlackboardComponent>(TEXT("BlackboardComponent"));
+
+    m_ReachedTarget = true;
+}
+
+void ASDTAIController::BeginPlay()
+{
+    Super::BeginPlay();
+
+    if (m_aiBehaviorTree)
+    {
+        m_behaviorTreeComponent->StartTree(*m_aiBehaviorTree);
+    }
+
+    
+}
+
+void ASDTAIController::OnPossess(APawn* pawn)
+{
+    Super::OnPossess(pawn);
+
+    if (m_aiBehaviorTree)
+    {
+        m_blackboardComponent->InitializeBlackboard(*m_aiBehaviorTree->GetBlackboardAsset());
+
+        m_targetPosBBKeyID = m_blackboardComponent->GetKeyID("TargetPos");
+        m_isTargetSeenBBKeyID = m_blackboardComponent->GetKeyID("TargetIsSeen");
+        m_nextPatrolDestinationBBKeyID = m_blackboardComponent->GetKeyID("NextPatrolDest");
+        m_currentPatrolDestinationBBKeyID = m_blackboardComponent->GetKeyID("CurrentPatrolDest");
+        m_isSelectedForTacticalGroupID = m_blackboardComponent->GetKeyID("SelectedForTacticalGroup");
+        m_arrivedToTacticalPositionID = m_blackboardComponent->GetKeyID("ArrivedToTacticalPosition");
+        
+        //ASoftDesignTrainingGameMode* GM = GetWorld()->GetAuthGameMode<ASoftDesignTrainingGameMode>();
+        //if (GM)
+        //{
+         //   GM->OnPayerSeenChange.AddDynamic(this, &ASDTAIController::SetIsTargetPlayerSeen);
+        //}
+    }
 }
 
 void ASDTAIController::GoToBestTarget(float deltaTime)
@@ -70,6 +114,15 @@ void ASDTAIController::MoveToRandomCollectible()
     }
 }
 
+FVector ASDTAIController::GetTargetPlayerPos() const
+{
+    ACharacter* playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+    if (playerCharacter)
+        return playerCharacter->GetActorLocation();
+
+    return FVector::ZeroVector;
+}
+
 void ASDTAIController::MoveToPlayer()
 {
     ACharacter * playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
@@ -80,11 +133,11 @@ void ASDTAIController::MoveToPlayer()
     OnMoveToTarget();
 }
 
-void ASDTAIController::PlayerInteractionLoSUpdate()
+bool ASDTAIController::PlayerInteractionLoSUpdate()
 {
     ACharacter * playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
     if (!playerCharacter)
-        return;
+        return false;
 
     TArray<TEnumAsByte<EObjectTypeQuery>> TraceObjectTypes;
     TraceObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
@@ -111,6 +164,14 @@ void ASDTAIController::PlayerInteractionLoSUpdate()
             m_PlayerInteractionNoLosTimer.Invalidate();
             DrawDebugString(GetWorld(), FVector(0.f, 0.f, 10.f), "Got LoS", GetPawn(), FColor::Red, 5.f, false);
         }
+
+        ASoftDesignTrainingGameMode* GM = GetWorld()->GetAuthGameMode<ASoftDesignTrainingGameMode>();
+        if (GM)
+        {
+            GM->PlayerSeenByAI(this);
+        }
+
+        return true;
     }
     else
     {
@@ -119,8 +180,8 @@ void ASDTAIController::PlayerInteractionLoSUpdate()
             GetWorld()->GetTimerManager().SetTimer(m_PlayerInteractionNoLosTimer, this, &ASDTAIController::OnPlayerInteractionNoLosDone, 3.f, false);
             DrawDebugString(GetWorld(), FVector(0.f, 0.f, 10.f), "Lost LoS", GetPawn(), FColor::Red, 5.f, false);
         }
+        return false;
     }
-    
 }
 
 void ASDTAIController::OnPlayerInteractionNoLosDone()
@@ -204,7 +265,10 @@ void ASDTAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollow
 {
     Super::OnMoveCompleted(RequestID, Result);
 
-    m_ReachedTarget = true;
+    if (Result.IsSuccess())
+    {
+        m_ReachedTarget = true;
+    }
 }
 
 void ASDTAIController::ShowNavigationPath()
@@ -259,7 +323,7 @@ void ASDTAIController::UpdatePlayerInteraction(float deltaTime)
 
     if (GetMoveStatus() == EPathFollowingStatus::Idle)
     {
-        m_ReachedTarget = true;
+        //m_ReachedTarget = true;
     }
 
     FString debugString = "";
@@ -304,8 +368,8 @@ bool ASDTAIController::HasLoSOnHit(const FHitResult& hit)
 
 void ASDTAIController::AIStateInterrupted()
 {
-    StopMovement();
-    m_ReachedTarget = true;
+    //StopMovement();
+    //m_ReachedTarget = true;
 }
 
 ASDTAIController::PlayerInteractionBehavior ASDTAIController::GetCurrentPlayerInteractionBehavior(const FHitResult& hit)

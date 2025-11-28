@@ -17,13 +17,15 @@ class SOFTDESIGNTRAINING_API ASDTBaseAIController : public AAIController
 public:
 
     ASDTBaseAIController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+    virtual void BeginPlay() override;
     virtual void Tick(float deltaTime) override;
 	
 protected:
     virtual void RotationUpdate(float deltaTime) {};
     virtual void ImpulseToDirection(float deltaTime) {};
 
-    bool m_ReachedTarget;
+    virtual void OnPossess(APawn* pawn) override;
+
 private:
     virtual void GoToBestTarget(float deltaTime) {};
     virtual void UpdatePlayerInteraction(float deltaTime) {};
