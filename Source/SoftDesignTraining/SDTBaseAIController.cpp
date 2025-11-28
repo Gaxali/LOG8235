@@ -24,7 +24,7 @@ void ASDTBaseAIController::Tick(float deltaTime)
 {
     Super::Tick(deltaTime);
 
-    //UpdatePlayerInteraction(deltaTime);
+    UpdatePlayerInteraction(deltaTime);
 
     //if (m_ReachedTarget)
     //{
