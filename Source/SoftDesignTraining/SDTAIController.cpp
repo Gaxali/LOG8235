@@ -23,7 +23,7 @@ ASDTAIController::ASDTAIController(const FObjectInitializer& ObjectInitializer)
     m_behaviorTreeComponent = CreateDefaultSubobject<UBehaviorTreeComponent>(TEXT("BehaviorTreeComponent"));
     m_blackboardComponent = CreateDefaultSubobject<UBlackboardComponent>(TEXT("BlackboardComponent"));
 
-    m_ReachedTarget = false;
+    m_ReachedTarget = true;
 }
 
 void ASDTAIController::BeginPlay()

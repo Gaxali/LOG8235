@@ -5,6 +5,7 @@
 #include "../SDTAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Bool.h"
+#include "Kismet/GameplayStatics.h"
 
 UBTService_IsPlayerSeen::UBTService_IsPlayerSeen()
 {
