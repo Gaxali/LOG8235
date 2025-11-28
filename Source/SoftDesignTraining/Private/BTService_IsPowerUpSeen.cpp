@@ -36,6 +36,7 @@ void UBTService_IsPowerUpSeen::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
         if (SDTUtils::Raycast(world, source, target))
         {
             OwnerComp.GetBlackboardComponent()->SetValueAsVector("TargetPos", target);
+			OwnerComp.GetBlackboardComponent()->SetValueAsBool("IsPowerUpSeen", true);
             return; 
         }
     }

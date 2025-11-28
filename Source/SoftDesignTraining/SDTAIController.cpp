@@ -49,6 +49,7 @@ void ASDTAIController::OnPossess(APawn* pawn)
         m_targetPosBBKeyID = m_blackboardComponent->GetKeyID("TargetPos");
         m_isTargetSeenBBKeyID = m_blackboardComponent->GetKeyID("TargetIsSeen");
         m_isPlayerPoweredUpBBKeyID = m_blackboardComponent->GetKeyID("PlayerIsPoweredUp");
+        m_isPowerUpSeenBBKeyID = m_blackboardComponent->GetKeyID("PowerUpSeen");
         m_nextPatrolDestinationBBKeyID = m_blackboardComponent->GetKeyID("NextPatrolDest");
         m_currentPatrolDestinationBBKeyID = m_blackboardComponent->GetKeyID("CurrentPatrolDest");
         m_isSelectedForTacticalGroupID = m_blackboardComponent->GetKeyID("SelectedForTacticalGroup");
@@ -165,11 +166,7 @@ bool ASDTAIController::PlayerInteractionLoSUpdate()
             DrawDebugString(GetWorld(), FVector(0.f, 0.f, 10.f), "Got LoS", GetPawn(), FColor::Red, 5.f, false);
         }
 
-        ASoftDesignTrainingGameMode* GM = GetWorld()->GetAuthGameMode<ASoftDesignTrainingGameMode>();
-        if (GM)
-        {
-            GM->PlayerSeenByAI(this);
-        }
+        SetIsTargetPlayerSeen(true);
 
         return true;
     }
@@ -180,6 +177,8 @@ bool ASDTAIController::PlayerInteractionLoSUpdate()
             GetWorld()->GetTimerManager().SetTimer(m_PlayerInteractionNoLosTimer, this, &ASDTAIController::OnPlayerInteractionNoLosDone, 3.f, false);
             DrawDebugString(GetWorld(), FVector(0.f, 0.f, 10.f), "Lost LoS", GetPawn(), FColor::Red, 5.f, false);
         }
+
+        SetIsTargetPlayerSeen(false);
         return false;
     }
 }

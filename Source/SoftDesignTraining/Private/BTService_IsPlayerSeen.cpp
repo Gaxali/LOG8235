@@ -14,6 +14,7 @@ UBTService_IsPlayerSeen::UBTService_IsPlayerSeen()
 
 void UBTService_IsPlayerSeen::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
+
     if (ASDTAIController* aiController = Cast<ASDTAIController>(OwnerComp.GetAIOwner()))
     {
         aiController->PlayerInteractionLoSUpdate();

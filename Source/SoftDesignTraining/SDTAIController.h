@@ -57,7 +57,8 @@ public:
 public:
     uint16  GetTargetPosBBKeyID() const { return m_targetPosBBKeyID; }
     uint16  GetTargetSeenKeyID() const { return m_isTargetSeenBBKeyID; }
-    uint16 GetPlayerPoweredUpKeyID() const { return m_isPlayerPoweredUpBBKeyID; }
+    uint16  GetPlayerPoweredUpKeyID() const { return m_isPlayerPoweredUpBBKeyID; }
+	uint16  GetPowerUpSeenKeyID() const { return m_isPowerUpSeenBBKeyID; }
     uint16  GetNextPatrolDestinationKeyID() const { return m_nextPatrolDestinationBBKeyID; }
     uint16  GetCurrentPatrolDestinationKeyID() const { return m_currentPatrolDestinationBBKeyID; }
     uint16  GetIsSelectedForTacticalGroupID() const { return m_isSelectedForTacticalGroupID; }
@@ -124,6 +125,7 @@ private:
     uint16  m_targetPosBBKeyID;
     uint16  m_isTargetSeenBBKeyID;
     uint16  m_isPlayerPoweredUpBBKeyID;
+    uint16  m_isPowerUpSeenBBKeyID;
     uint16  m_isSelectedForTacticalGroupID;
     uint16  m_nextPatrolDestinationBBKeyID;
     uint16  m_currentPatrolDestinationBBKeyID;
