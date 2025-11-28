@@ -367,7 +367,7 @@ bool ASDTAIController::HasLoSOnHit(const FHitResult& hit)
 
 void ASDTAIController::AIStateInterrupted()
 {
-    StopMovement();
+    //StopMovement();
     //m_ReachedTarget = true;
 }
 
