@@ -119,11 +119,11 @@ void ASoftDesignTrainingGameMode::OnQueryTacticalPositionsAttack(UEnvQueryInstan
 	}
 
 	// Set TargetPos for all
-	for (ASDTAIController* AIController : GroupTemporal)
-	{
-		auto AIPosition = AIController->GetPawn()->GetActorLocation();
-		AIController->TargetPos = AIPosition;
-	}
+	//for (ASDTAIController* AIController : GroupTemporal)
+	//{
+	//	auto AIPosition = AIController->GetPawn()->GetActorLocation();
+	//	AIController->TargetPos = AIPosition;
+	//}
 
 	// Assing tactical positions to the group
 	for (ASDTAIController* AIController : AIControllersTacticalGroup)
@@ -150,9 +150,10 @@ void ASoftDesignTrainingGameMode::OnQueryTacticalPositionsAttack(UEnvQueryInstan
 			AIController->TargetPos = AIPosition;
 		}
 		
+		AIController->SetIsTargetPlayerSeen(true);
 	}
 
-	OnPayerSeenChange.Broadcast(true);
+	//OnPayerSeenChange.Broadcast(true);
 }
 
 void ASoftDesignTrainingGameMode::PlayerSeenByAI(ASDTAIController* InstigatorAIController)
@@ -160,6 +161,25 @@ void ASoftDesignTrainingGameMode::PlayerSeenByAI(ASDTAIController* InstigatorAIC
 	if (AIControllersTacticalGroup.IsEmpty())
 	{
 		RunEQSForTacticalGroupCreation();
+	}
+	else
+	{
+		//if (!AIControllersTacticalGroup.Contains(InstigatorAIController))
+		//{
+		//	if (SoftPlayerController)
+		//	{
+		//		auto PlayerPos = SoftPlayerController->GetPawn()->GetActorLocation();
+		//
+		//		if (FVector::DistSquared(PlayerPos, InstigatorAIController->GetPawn()->GetActorLocation()) < 250000.0)
+		//		{
+		//			auto AIPosition = InstigatorAIController->GetPawn()->GetActorLocation();
+		//			InstigatorAIController->TargetPos = AIPosition;
+		//			InstigatorAIController->SetIsTargetPlayerSeen(true);
+		//
+		//			AIControllersTacticalGroup.Add(InstigatorAIController);
+		//		}
+		//	}
+		//}
 	}
 }
 

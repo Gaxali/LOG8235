@@ -52,11 +52,12 @@ void ASDTAIController::OnPossess(APawn* pawn)
         m_currentPatrolDestinationBBKeyID = m_blackboardComponent->GetKeyID("CurrentPatrolDest");
         m_isSelectedForTacticalGroupID = m_blackboardComponent->GetKeyID("SelectedForTacticalGroup");
         m_arrivedToTacticalPositionID = m_blackboardComponent->GetKeyID("ArrivedToTacticalPosition");
-        ASoftDesignTrainingGameMode* GM = GetWorld()->GetAuthGameMode<ASoftDesignTrainingGameMode>();
-        if (GM)
-        {
-            GM->OnPayerSeenChange.AddDynamic(this, &ASDTAIController::SetIsTargetPlayerSeen);
-        }
+        
+        //ASoftDesignTrainingGameMode* GM = GetWorld()->GetAuthGameMode<ASoftDesignTrainingGameMode>();
+        //if (GM)
+        //{
+         //   GM->OnPayerSeenChange.AddDynamic(this, &ASDTAIController::SetIsTargetPlayerSeen);
+        //}
     }
 }
 
