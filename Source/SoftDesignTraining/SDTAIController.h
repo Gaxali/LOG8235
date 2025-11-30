@@ -93,7 +93,12 @@ public:
     UFUNCTION()
     void SetIsTargetPlayerSeen(bool IsPlayerSeen) { m_IsPlayerDetected = IsPlayerSeen; }
 
+    UFUNCTION()
+    void ShouldGoToFleeLocation(bool GoToFleeLocation);
+
     bool m_ReachedTarget;
+    //bool m_ShouldGoToFleeLocation;
+
     FVector TargetPos;
 
 private:
@@ -113,7 +118,7 @@ protected:
 
 private:
 
-    bool m_IsPlayerDetected = false;
+    bool m_IsPlayerDetected;
 
     UPROPERTY(transient)
     UBehaviorTreeComponent* m_behaviorTreeComponent;

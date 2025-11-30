@@ -24,6 +24,8 @@ ASDTAIController::ASDTAIController(const FObjectInitializer& ObjectInitializer)
     m_blackboardComponent = CreateDefaultSubobject<UBlackboardComponent>(TEXT("BlackboardComponent"));
 
     m_ReachedTarget = true;
+    m_IsPlayerDetected = false;
+    //m_ShouldGoToFleeLocation = false;
 }
 
 void ASDTAIController::BeginPlay()
@@ -53,11 +55,11 @@ void ASDTAIController::OnPossess(APawn* pawn)
         m_isSelectedForTacticalGroupID = m_blackboardComponent->GetKeyID("SelectedForTacticalGroup");
         m_arrivedToTacticalPositionID = m_blackboardComponent->GetKeyID("ArrivedToTacticalPosition");
         
-        //ASoftDesignTrainingGameMode* GM = GetWorld()->GetAuthGameMode<ASoftDesignTrainingGameMode>();
-        //if (GM)
-        //{
-         //   GM->OnPayerSeenChange.AddDynamic(this, &ASDTAIController::SetIsTargetPlayerSeen);
-        //}
+        ASoftDesignTrainingGameMode* GM = GetWorld()->GetAuthGameMode<ASoftDesignTrainingGameMode>();
+        if (GM)
+        {
+           GM->OnPlayerPowerUp.AddDynamic(this, &ASDTAIController::ShouldGoToFleeLocation);
+        }
     }
 }
 
@@ -131,6 +133,11 @@ void ASDTAIController::MoveToPlayer()
 
     MoveToActor(playerCharacter, 0.5f, false, true, true, NULL, false);
     OnMoveToTarget();
+}
+
+void ASDTAIController::ShouldGoToFleeLocation(bool GoToFleeLocation)
+{
+    //m_ShouldGoToFleeLocation = true;
 }
 
 bool ASDTAIController::PlayerInteractionLoSUpdate()
@@ -268,6 +275,7 @@ void ASDTAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollow
     if (Result.IsSuccess())
     {
         m_ReachedTarget = true;
+        //m_ShouldGoToFleeLocation = false;
     }
 }
 

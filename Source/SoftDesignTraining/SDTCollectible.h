@@ -9,6 +9,8 @@
 /**
  * 
  */
+class ASoftDesignTrainingCharacter; 
+
 UCLASS()
 class SOFTDESIGNTRAINING_API ASDTCollectible : public AStaticMeshActor
 {
@@ -16,7 +18,7 @@ class SOFTDESIGNTRAINING_API ASDTCollectible : public AStaticMeshActor
 public:
     ASDTCollectible();
 
-    void Collect();
+    void Collect(ASoftDesignTrainingCharacter* InstigatorCharacter);
     void OnCooldownDone();
     bool IsOnCooldown();
 

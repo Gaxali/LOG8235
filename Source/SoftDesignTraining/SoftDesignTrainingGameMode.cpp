@@ -49,6 +49,11 @@ void ASoftDesignTrainingGameMode::Tick(float DeltaSeconds)
 	// Your logic here
 }
 
+void ASoftDesignTrainingGameMode::PlayerPickUpPowerUp()
+{
+	OnPlayerPowerUp.Broadcast(true);
+}
+
 void ASoftDesignTrainingGameMode::RunEQSForTacticalGroupCreation()
 {
 	if (TacticalAttackPositionsQuery)

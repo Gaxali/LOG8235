@@ -5,7 +5,7 @@
 #include "EnvironmentQuery/EnvQueryTypes.h"
 #include "SoftDesignTrainingGameMode.generated.h"
 
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTacticalChanged, bool, TacticalChange);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerPowerUP, bool, PowerUpPickUp);
 
 class UEnvQuery;
 class ASoftDesignTrainingPlayerController;
@@ -24,9 +24,13 @@ public:
 
 	void Tick(float DeltaSeconds) override;
 	
+	void PlayerPickUpPowerUp();
 
 	//UPROPERTY(BlueprintAssignable)
 	//FOnTacticalChanged OnPayerSeenChange;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnPlayerPowerUP OnPlayerPowerUp;
 
 protected:
 
