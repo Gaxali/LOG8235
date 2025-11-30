@@ -17,15 +17,15 @@ void UBTService_IsPlayerSeen::TickNode(UBehaviorTreeComponent& OwnerComp, uint8*
     if (ASDTAIController* aiController = Cast<ASDTAIController>(OwnerComp.GetAIOwner()))
     {
         aiController->PlayerInteractionLoSUpdate();
-
+                
+        OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(aiController->GetTargetSeenKeyID(), aiController->IsTargetPlayerSeen());
+        
         if (aiController->IsTargetPlayerSeen())
         {
-            OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(aiController->GetTargetSeenKeyID(), true);
-            
-            if (aiController->m_ReachedTarget)
-            {
-                OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(aiController->GetArrivedToTacticalPositionID(), true);
-            }
+            //if (aiController->m_ReachedTarget)
+            //{
+            OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(aiController->GetArrivedToTacticalPositionID(), aiController->m_ReachedTarget);
+            //}
             //OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(aiController->GetIsSelectedForTacticalGroupID(), true);
         }
         //else
