@@ -20,14 +20,14 @@ void UBTService_IsPlayerSeen::TickNode(UBehaviorTreeComponent& OwnerComp, uint8*
                 
         OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(aiController->GetTargetSeenKeyID(), aiController->IsTargetPlayerSeen());
         
-        if (aiController->IsTargetPlayerSeen())
-        {
+        //if (aiController->IsTargetPlayerSeen())
+        //{
             //if (aiController->m_ReachedTarget)
             //{
-            OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(aiController->GetArrivedToTacticalPositionID(), aiController->m_ReachedTarget);
+            //OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(aiController->GetArrivedToTacticalPositionID(), aiController->m_ReachedTarget);
             //}
             //OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(aiController->GetIsSelectedForTacticalGroupID(), true);
-        }
+        //}
         //else
         //{
         //    OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(aiController->GetTargetSeenKeyID(), false);

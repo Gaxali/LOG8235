@@ -390,26 +390,10 @@ bool ASDTAIController::HasLoSOnHit(const FHitResult& hit)
     return losHit.GetActor() == nullptr;
 }
 
-void ASDTAIController::AIStateInterrupted(bool HasDied)
+void ASDTAIController::AIStateInterrupted()
 {
     StopMovement();
     m_ReachedTarget = true;
-    //AtJumpSegment = false;
-
-    //if (HasDied)
-    //{
-    //    ASoftDesignTrainingGameMode* GM = GetWorld()->GetAuthGameMode<ASoftDesignTrainingGameMode>();
-    //    if (GM)
-    //    {
-    //        GM->RemoveFromGroupWhenDie(this);
-    //    }
-    //}
-
-    //if (InAir)
-    //{
-        //MoveToLocation(TargetPos);
-    //    StopMovement();
-    //}
 }
 
 ASDTAIController::PlayerInteractionBehavior ASDTAIController::GetCurrentPlayerInteractionBehavior(const FHitResult& hit)

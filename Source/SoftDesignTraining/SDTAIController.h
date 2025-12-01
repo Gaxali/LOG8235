@@ -87,7 +87,7 @@ public:
     virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
     void RotateTowards(const FVector& targetLocation);
     void SetActorLocation(const FVector& targetLocation);
-    void AIStateInterrupted(bool HasDied);
+    void AIStateInterrupted();
     bool IsTargetPlayerSeen() { return m_IsPlayerDetected; }
     
     UFUNCTION()
@@ -100,7 +100,6 @@ public:
     //bool m_ShouldGoToFleeLocation;
 
     FVector TargetPos;
-    FVector FinalTargetPosForMoveTo;
 
 private:
     virtual void GoToBestTarget(float deltaTime) override;
