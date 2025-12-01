@@ -19,14 +19,7 @@ EBTNodeResult::Type UBTTask_MoveToTarget::ExecuteTask(UBehaviorTreeComponent& Ow
             auto FinalTargetPosForMoveTo = OwnerComp.GetBlackboardComponent()->GetValue<UBlackboardKeyType_Vector>(aiController->GetTargetPosBBKeyID());
             UAIBlueprintHelperLibrary::SimpleMoveToLocation(aiController, FinalTargetPosForMoveTo);
         }
-        //if (!aiController->InAir)
-        //{
-        //    targetPosition = OwnerComp.GetBlackboardComponent()->GetValue<UBlackboardKeyType_Vector>(aiController->GetTargetPosBBKeyID());
-
-         //   UAIBlueprintHelperLibrary::SimpleMoveToLocation(aiController, targetPosition);
-
-        //}
-
+        
         return EBTNodeResult::Succeeded;
     }
     

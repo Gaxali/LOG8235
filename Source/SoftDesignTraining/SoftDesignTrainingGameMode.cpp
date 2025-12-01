@@ -172,14 +172,16 @@ void ASoftDesignTrainingGameMode::OnQueryTacticalPositionsAttack(UEnvQueryInstan
 			// Remove it
 			Locations.RemoveAt(0);
 
-			AIController->TargetPos = Closest;
-			AIController->m_ReachedTarget = true; // AIStateInterrupted();
+			AIController->TActicalPos = Closest;
+			//AIController->m_ReachedTarget = 
+			AIController->AIStateInterrupted();
 			DrawDebugSphere(GetWorld(), Closest, 50.0f, 10, FColor::Blue, false, 0.5f);
 		}
 		else
 		{
-			AIController->TargetPos = AIPosition;
-			AIController->m_ReachedTarget = true; //AIStateInterrupted();
+			AIController->TActicalPos = AIPosition;
+			//AIController->m_ReachedTarget = 
+			AIController->AIStateInterrupted();
 		}
 		
 		AIController->SetIsTargetPlayerSeen(true);

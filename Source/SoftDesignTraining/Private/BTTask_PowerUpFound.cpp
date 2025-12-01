@@ -24,17 +24,13 @@ EBTNodeResult::Type UBTTask_PowerUpFound::ExecuteTask(UBehaviorTreeComponent& Ow
             return EBTNodeResult::Succeeded;
         }
 
-        //if (aiController->m_ReachedTarget)
-        //{
-        //    PowerUpAssigned = 0;
-        //}
-        //
-        //if (PowerUpAssigned == 1)
-        //{
-        //    return EBTNodeResult::Succeeded;
-        //}
+        if (OwnerComp.GetBlackboardComponent()->GetValue<UBlackboardKeyType_Bool>(aiController->GetTargetSeenKeyID()))
+        {
+            aiController->m_ReachedTarget = true;
+            return EBTNodeResult::Failed;
+        }
     }
-
+    
     while (foundCollectibles.Num() != 0)
     {
         int index = FMath::RandRange(0, foundCollectibles.Num() - 1);
@@ -63,6 +59,11 @@ EBTNodeResult::Type UBTTask_PowerUpFound::ExecuteTask(UBehaviorTreeComponent& Ow
         {
             foundCollectibles.RemoveAt(index);
         }
+    }
+
+    if (ASDTAIController* aiController = Cast<ASDTAIController>(OwnerComp.GetAIOwner()))
+    {
+        aiController->m_ReachedTarget = true;
     }
 
     return EBTNodeResult::Failed;

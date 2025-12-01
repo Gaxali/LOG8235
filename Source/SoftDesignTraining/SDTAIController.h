@@ -74,7 +74,7 @@ public:
 
     void GetHightestPriorityDetectionHit(const TArray<FHitResult>& hits, FHitResult& outDetectionHit);
     void UpdatePlayerInteractionBehavior(const FHitResult& detectionHit, float deltaTime);
-    PlayerInteractionBehavior GetCurrentPlayerInteractionBehavior(const FHitResult& hit);
+    //PlayerInteractionBehavior GetCurrentPlayerInteractionBehavior(const FHitResult& hit);
     bool HasLoSOnHit(const FHitResult& hit);
     void MoveToRandomCollectible();
     void MoveToPlayer();
@@ -100,6 +100,7 @@ public:
     //bool m_ShouldGoToFleeLocation;
 
     FVector TargetPos;
+    FVector TActicalPos;
 
 private:
     virtual void GoToBestTarget(float deltaTime) override;

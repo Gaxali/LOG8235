@@ -15,11 +15,19 @@ EBTNodeResult::Type UBTTask_TacticalPositionAssigned::ExecuteTask(UBehaviorTreeC
     {
         if (OwnerComp.GetBlackboardComponent()->GetValue<UBlackboardKeyType_Bool>(aiController->GetTargetSeenKeyID()))
         {
-            OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Vector>(aiController->GetTargetPosBBKeyID(), aiController->TargetPos);
+            if (TacticalPosAssigned == 0)
+            {
+                aiController->m_ReachedTarget = true;
+                //aiController->AIStateInterrupted();
+                TacticalPosAssigned = 1;
+            }
+            OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Vector>(aiController->GetTargetPosBBKeyID(), aiController->TActicalPos);
             
             return EBTNodeResult::Succeeded;
         }
     }
+
+    TacticalPosAssigned = 0;
 
     return EBTNodeResult::Failed;
 }
