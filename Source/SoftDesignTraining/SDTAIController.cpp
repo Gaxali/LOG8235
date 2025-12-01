@@ -66,26 +66,40 @@ void ASDTAIController::OnPossess(APawn* pawn)
 
 void ASDTAIController::GoToBestTarget(float deltaTime)
 {
-    switch (m_PlayerInteractionBehavior)
-    {
-    case PlayerInteractionBehavior_Collect:
 
-        MoveToRandomCollectible();
+    //if (!m_ReachedTarget)
+    //{
+        //if (!InAir)
+        //{
+            //MoveToLocation(TargetPos);
+    //if (m_ReachedTarget)
+    //{
+        //UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, FinalTargetPosForMoveTo);
+        //OnMoveToTarget();
+    //}
+          //}
+    //}
 
-        break;
-
-    case PlayerInteractionBehavior_Chase:
-
-        MoveToPlayer();
-
-        break;
-
-    case PlayerInteractionBehavior_Flee:
-
-        MoveToBestFleeLocation();
-
-        break;
-    }
+    //switch (m_PlayerInteractionBehavior)
+    //{
+    //case PlayerInteractionBehavior_Collect:
+    //
+    //    MoveToRandomCollectible();
+    //
+    //    break;
+    //
+    //case PlayerInteractionBehavior_Chase:
+    //
+    //    MoveToPlayer();
+    //
+    //    break;
+    //
+    //case PlayerInteractionBehavior_Flee:
+    //
+    //    MoveToBestFleeLocation();
+    //
+    //    break;
+    //}
 }
 
 void ASDTAIController::MoveToRandomCollectible()
@@ -315,16 +329,7 @@ void ASDTAIController::UpdatePlayerInteraction(float deltaTime)
     ACharacter* playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
     if (!playerCharacter)
         return;
-
-
-    if (!m_ReachedTarget)
-    {
-        if (!InAir)
-        {
-            //MoveToLocation(TargetPos);
-            UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, FinalTargetPosForMoveTo);
-        }
-    }
+       
 
     FVector detectionStartLocation = selfPawn->GetActorLocation() + selfPawn->GetActorForwardVector() * m_DetectionCapsuleForwardStartingOffset;
     FVector detectionEndLocation = detectionStartLocation + selfPawn->GetActorForwardVector() * m_DetectionCapsuleHalfLength * 2;
@@ -389,16 +394,22 @@ void ASDTAIController::AIStateInterrupted(bool HasDied)
 {
     StopMovement();
     m_ReachedTarget = true;
-    AtJumpSegment = false;
+    //AtJumpSegment = false;
 
-    if (HasDied)
-    {
-        ASoftDesignTrainingGameMode* GM = GetWorld()->GetAuthGameMode<ASoftDesignTrainingGameMode>();
-        if (GM)
-        {
-            GM->RemoveFromGroupWhenDie(this);
-        }
-    }
+    //if (HasDied)
+    //{
+    //    ASoftDesignTrainingGameMode* GM = GetWorld()->GetAuthGameMode<ASoftDesignTrainingGameMode>();
+    //    if (GM)
+    //    {
+    //        GM->RemoveFromGroupWhenDie(this);
+    //    }
+    //}
+
+    //if (InAir)
+    //{
+        //MoveToLocation(TargetPos);
+    //    StopMovement();
+    //}
 }
 
 ASDTAIController::PlayerInteractionBehavior ASDTAIController::GetCurrentPlayerInteractionBehavior(const FHitResult& hit)

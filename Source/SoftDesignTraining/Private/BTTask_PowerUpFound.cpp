@@ -52,8 +52,8 @@ EBTNodeResult::Type UBTTask_PowerUpFound::ExecuteTask(UBehaviorTreeComponent& Ow
             OwnerComp.GetBlackboardComponent()->SetValueAsVector("TargetPos", foundCollectibles[index]->GetActorLocation());
             //        return EBTNodeResult::Succeeded;
             
-            if (ASDTAIController* aiController = Cast<ASDTAIController>(OwnerComp.GetAIOwner()))
-                aiController->OnMoveToTarget();
+            //if (ASDTAIController* aiController = Cast<ASDTAIController>(OwnerComp.GetAIOwner()))
+           //    aiController->OnMoveToTarget();
 
             //PowerUpAssigned = 1;
 
