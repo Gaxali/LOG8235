@@ -19,31 +19,5 @@ void UBTService_IsPlayerSeen::TickNode(UBehaviorTreeComponent& OwnerComp, uint8*
         aiController->PlayerInteractionLoSUpdate();
                 
         OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(aiController->GetTargetSeenKeyID(), aiController->IsTargetPlayerSeen());
-        
-        //if (aiController->IsTargetPlayerSeen())
-        //{
-            //if (aiController->m_ReachedTarget)
-            //{
-            //OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(aiController->GetArrivedToTacticalPositionID(), aiController->m_ReachedTarget);
-            //}
-            //OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(aiController->GetIsSelectedForTacticalGroupID(), true);
-        //}
-        //else
-        //{
-        //    OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(aiController->GetTargetSeenKeyID(), false);
-        //}
-        //if (aiBase->IsTargetPlayerSeen())
-        //{
-        //    //write to bb that the player is seen
-        //    OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(aiController->GetTargetSeenKeyID(), true);
-        //
-        //    //write to bb the position of the target
-        //    OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Vector>(aiController->GetTargetPosBBKeyID(), aiBase->GetTargetPlayerPos());
-        //}
-        //else
-        //{
-        //    //write to bb that the player is not seen
-        //    OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(aiController->GetTargetSeenKeyID(), false);
-        //}
     }
 }

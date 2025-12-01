@@ -41,18 +41,10 @@ EBTNodeResult::Type UBTTask_PowerUpFound::ExecuteTask(UBehaviorTreeComponent& Ow
 
         if (!collectibleActor->IsOnCooldown())
         {
-            //MoveToLocation(foundCollectibles[index]->GetActorLocation(), 0.5f, false, true, true, false, NULL, false);
-            //OnMoveToTarget();
             auto pos = foundCollectibles[index]->GetActorLocation();
             UE_LOG(LogTemp, Warning, TEXT("Position: X=%f  Y=%f  Z=%f"), pos.X, pos.Y, pos.Z);
             OwnerComp.GetBlackboardComponent()->SetValueAsVector("TargetPos", foundCollectibles[index]->GetActorLocation());
-            //        return EBTNodeResult::Succeeded;
             
-            //if (ASDTAIController* aiController = Cast<ASDTAIController>(OwnerComp.GetAIOwner()))
-           //    aiController->OnMoveToTarget();
-
-            //PowerUpAssigned = 1;
-
             return EBTNodeResult::Succeeded;
         }
         else
