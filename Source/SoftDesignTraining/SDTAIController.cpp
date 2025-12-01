@@ -14,6 +14,7 @@
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "SoftDesignTrainingGameMode.h"
+#include "Blueprint/AIBlueprintHelperLibrary.h"
 
 ASDTAIController::ASDTAIController(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer.SetDefaultSubobjectClass<USDTPathFollowingComponent>(TEXT("PathFollowingComponent")))
@@ -24,6 +25,8 @@ ASDTAIController::ASDTAIController(const FObjectInitializer& ObjectInitializer)
     m_blackboardComponent = CreateDefaultSubobject<UBlackboardComponent>(TEXT("BlackboardComponent"));
 
     m_ReachedTarget = true;
+    m_IsPlayerDetected = false;
+    //m_ShouldGoToFleeLocation = false;
 }
 
 void ASDTAIController::BeginPlay()
@@ -53,36 +56,50 @@ void ASDTAIController::OnPossess(APawn* pawn)
         m_isSelectedForTacticalGroupID = m_blackboardComponent->GetKeyID("SelectedForTacticalGroup");
         m_arrivedToTacticalPositionID = m_blackboardComponent->GetKeyID("ArrivedToTacticalPosition");
         
-        //ASoftDesignTrainingGameMode* GM = GetWorld()->GetAuthGameMode<ASoftDesignTrainingGameMode>();
-        //if (GM)
-        //{
-         //   GM->OnPayerSeenChange.AddDynamic(this, &ASDTAIController::SetIsTargetPlayerSeen);
-        //}
+        ASoftDesignTrainingGameMode* GM = GetWorld()->GetAuthGameMode<ASoftDesignTrainingGameMode>();
+        if (GM)
+        {
+           GM->OnPlayerPowerUp.AddDynamic(this, &ASDTAIController::ShouldGoToFleeLocation);
+        }
     }
 }
 
 void ASDTAIController::GoToBestTarget(float deltaTime)
 {
-    switch (m_PlayerInteractionBehavior)
-    {
-    case PlayerInteractionBehavior_Collect:
 
-        MoveToRandomCollectible();
+    //if (!m_ReachedTarget)
+    //{
+        //if (!InAir)
+        //{
+            //MoveToLocation(TargetPos);
+    //if (m_ReachedTarget)
+    //{
+        //UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, FinalTargetPosForMoveTo);
+        //OnMoveToTarget();
+    //}
+          //}
+    //}
 
-        break;
-
-    case PlayerInteractionBehavior_Chase:
-
-        MoveToPlayer();
-
-        break;
-
-    case PlayerInteractionBehavior_Flee:
-
-        MoveToBestFleeLocation();
-
-        break;
-    }
+    //switch (m_PlayerInteractionBehavior)
+    //{
+    //case PlayerInteractionBehavior_Collect:
+    //
+    //    MoveToRandomCollectible();
+    //
+    //    break;
+    //
+    //case PlayerInteractionBehavior_Chase:
+    //
+    //    MoveToPlayer();
+    //
+    //    break;
+    //
+    //case PlayerInteractionBehavior_Flee:
+    //
+    //    MoveToBestFleeLocation();
+    //
+    //    break;
+    //}
 }
 
 void ASDTAIController::MoveToRandomCollectible()
@@ -133,6 +150,11 @@ void ASDTAIController::MoveToPlayer()
     OnMoveToTarget();
 }
 
+void ASDTAIController::ShouldGoToFleeLocation(bool GoToFleeLocation)
+{
+    //m_ShouldGoToFleeLocation = true;
+}
+
 bool ASDTAIController::PlayerInteractionLoSUpdate()
 {
     ACharacter * playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
@@ -162,7 +184,7 @@ bool ASDTAIController::PlayerInteractionLoSUpdate()
         {
             GetWorld()->GetTimerManager().ClearTimer(m_PlayerInteractionNoLosTimer);
             m_PlayerInteractionNoLosTimer.Invalidate();
-            DrawDebugString(GetWorld(), FVector(0.f, 0.f, 10.f), "Got LoS", GetPawn(), FColor::Red, 5.f, false);
+            //DrawDebugString(GetWorld(), FVector(0.f, 0.f, 10.f), "Got LoS", GetPawn(), FColor::Red, 5.f, false);
         }
 
         ASoftDesignTrainingGameMode* GM = GetWorld()->GetAuthGameMode<ASoftDesignTrainingGameMode>();
@@ -178,7 +200,7 @@ bool ASDTAIController::PlayerInteractionLoSUpdate()
         if (!GetWorld()->GetTimerManager().IsTimerActive(m_PlayerInteractionNoLosTimer))
         {
             GetWorld()->GetTimerManager().SetTimer(m_PlayerInteractionNoLosTimer, this, &ASDTAIController::OnPlayerInteractionNoLosDone, 3.f, false);
-            DrawDebugString(GetWorld(), FVector(0.f, 0.f, 10.f), "Lost LoS", GetPawn(), FColor::Red, 5.f, false);
+            //DrawDebugString(GetWorld(), FVector(0.f, 0.f, 10.f), "Lost LoS", GetPawn(), FColor::Red, 5.f, false);
         }
         return false;
     }
@@ -186,14 +208,14 @@ bool ASDTAIController::PlayerInteractionLoSUpdate()
 
 void ASDTAIController::OnPlayerInteractionNoLosDone()
 {
-    GetWorld()->GetTimerManager().ClearTimer(m_PlayerInteractionNoLosTimer);
-    DrawDebugString(GetWorld(), FVector(0.f, 0.f, 10.f), "TIMER DONE", GetPawn(), FColor::Red, 5.f, false);
-
-    if (!AtJumpSegment)
-    {
-        AIStateInterrupted();
-        m_PlayerInteractionBehavior = PlayerInteractionBehavior_Collect;
-    }
+    //GetWorld()->GetTimerManager().ClearTimer(m_PlayerInteractionNoLosTimer);
+    //DrawDebugString(GetWorld(), FVector(0.f, 0.f, 10.f), "TIMER DONE", GetPawn(), FColor::Red, 5.f, false);
+    //
+    //if (!AtJumpSegment)
+    //{
+    //    AIStateInterrupted();
+    //    m_PlayerInteractionBehavior = PlayerInteractionBehavior_Collect;
+    //}
 }
 
 void ASDTAIController::MoveToBestFleeLocation()
@@ -268,6 +290,7 @@ void ASDTAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollow
     if (Result.IsSuccess())
     {
         m_ReachedTarget = true;
+        //m_ShouldGoToFleeLocation = false;
     }
 }
 
@@ -306,6 +329,7 @@ void ASDTAIController::UpdatePlayerInteraction(float deltaTime)
     ACharacter* playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
     if (!playerCharacter)
         return;
+       
 
     FVector detectionStartLocation = selfPawn->GetActorLocation() + selfPawn->GetActorForwardVector() * m_DetectionCapsuleForwardStartingOffset;
     FVector detectionEndLocation = detectionStartLocation + selfPawn->GetActorForwardVector() * m_DetectionCapsuleHalfLength * 2;
@@ -316,34 +340,34 @@ void ASDTAIController::UpdatePlayerInteraction(float deltaTime)
     TArray<FHitResult> allDetectionHits;
     GetWorld()->SweepMultiByObjectType(allDetectionHits, detectionStartLocation, detectionEndLocation, FQuat::Identity, detectionTraceObjectTypes, FCollisionShape::MakeSphere(m_DetectionCapsuleRadius));
 
-    FHitResult detectionHit;
-    GetHightestPriorityDetectionHit(allDetectionHits, detectionHit);
+    //FHitResult detectionHit;
+    //GetHightestPriorityDetectionHit(allDetectionHits, detectionHit);
 
-    UpdatePlayerInteractionBehavior(detectionHit, deltaTime);
+    //UpdatePlayerInteractionBehavior(detectionHit, deltaTime);
 
     if (GetMoveStatus() == EPathFollowingStatus::Idle)
     {
-        //m_ReachedTarget = true;
+        m_ReachedTarget = true;
     }
 
-    FString debugString = "";
+    //FString debugString = "";
+    //
+    //switch (m_PlayerInteractionBehavior)
+    //{
+    //case PlayerInteractionBehavior_Chase:
+    //    debugString = "Chase";
+    //    break;
+    //case PlayerInteractionBehavior_Flee:
+    //    debugString = "Flee";
+    //    break;
+    //case PlayerInteractionBehavior_Collect:
+    //    debugString = "Collect";
+    //    break;
+    //}
 
-    switch (m_PlayerInteractionBehavior)
-    {
-    case PlayerInteractionBehavior_Chase:
-        debugString = "Chase";
-        break;
-    case PlayerInteractionBehavior_Flee:
-        debugString = "Flee";
-        break;
-    case PlayerInteractionBehavior_Collect:
-        debugString = "Collect";
-        break;
-    }
+    //DrawDebugString(GetWorld(), FVector(0.f, 0.f, 5.f), debugString, GetPawn(), FColor::Orange, 0.f, false);
 
-    DrawDebugString(GetWorld(), FVector(0.f, 0.f, 5.f), debugString, GetPawn(), FColor::Orange, 0.f, false);
-
-    DrawDebugCapsule(GetWorld(), detectionStartLocation + m_DetectionCapsuleHalfLength * selfPawn->GetActorForwardVector(), m_DetectionCapsuleHalfLength, m_DetectionCapsuleRadius, selfPawn->GetActorQuat() * selfPawn->GetActorUpVector().ToOrientationQuat(), FColor::Blue);
+    //DrawDebugCapsule(GetWorld(), detectionStartLocation + m_DetectionCapsuleHalfLength * selfPawn->GetActorForwardVector(), m_DetectionCapsuleHalfLength, m_DetectionCapsuleRadius, selfPawn->GetActorQuat() * selfPawn->GetActorUpVector().ToOrientationQuat(), FColor::Blue);
 }
 
 bool ASDTAIController::HasLoSOnHit(const FHitResult& hit)
@@ -368,32 +392,32 @@ bool ASDTAIController::HasLoSOnHit(const FHitResult& hit)
 
 void ASDTAIController::AIStateInterrupted()
 {
-    //StopMovement();
-    //m_ReachedTarget = true;
+    StopMovement();
+    m_ReachedTarget = true;
 }
 
-ASDTAIController::PlayerInteractionBehavior ASDTAIController::GetCurrentPlayerInteractionBehavior(const FHitResult& hit)
-{
-    if (m_PlayerInteractionBehavior == PlayerInteractionBehavior_Collect)
-    {
-        if (!hit.GetComponent())
-            return PlayerInteractionBehavior_Collect;
-
-        if (hit.GetComponent()->GetCollisionObjectType() != COLLISION_PLAYER)
-            return PlayerInteractionBehavior_Collect;
-
-        if (!HasLoSOnHit(hit))
-            return PlayerInteractionBehavior_Collect;
-
-        return SDTUtils::IsPlayerPoweredUp(GetWorld()) ? PlayerInteractionBehavior_Flee : PlayerInteractionBehavior_Chase;
-    }
-    else
-    {
-        PlayerInteractionLoSUpdate();
-
-        return SDTUtils::IsPlayerPoweredUp(GetWorld()) ? PlayerInteractionBehavior_Flee : PlayerInteractionBehavior_Chase;
-    }
-}
+//ASDTAIController::PlayerInteractionBehavior ASDTAIController::GetCurrentPlayerInteractionBehavior(const FHitResult& hit)
+//{
+//    if (m_PlayerInteractionBehavior == PlayerInteractionBehavior_Collect)
+//    {
+//        if (!hit.GetComponent())
+//            return PlayerInteractionBehavior_Collect;
+//
+//        if (hit.GetComponent()->GetCollisionObjectType() != COLLISION_PLAYER)
+//            return PlayerInteractionBehavior_Collect;
+//
+//        if (!HasLoSOnHit(hit))
+//            return PlayerInteractionBehavior_Collect;
+//
+//        return SDTUtils::IsPlayerPoweredUp(GetWorld()) ? PlayerInteractionBehavior_Flee : PlayerInteractionBehavior_Chase;
+//    }
+//    else
+//    {
+//        PlayerInteractionLoSUpdate();
+//
+//        return SDTUtils::IsPlayerPoweredUp(GetWorld()) ? PlayerInteractionBehavior_Flee : PlayerInteractionBehavior_Chase;
+//    }
+//}
 
 void ASDTAIController::GetHightestPriorityDetectionHit(const TArray<FHitResult>& hits, FHitResult& outDetectionHit)
 {
@@ -417,11 +441,11 @@ void ASDTAIController::GetHightestPriorityDetectionHit(const TArray<FHitResult>&
 
 void ASDTAIController::UpdatePlayerInteractionBehavior(const FHitResult& detectionHit, float deltaTime)
 {
-    PlayerInteractionBehavior currentBehavior = GetCurrentPlayerInteractionBehavior(detectionHit);
-
-    if (currentBehavior != m_PlayerInteractionBehavior)
-    {
-        m_PlayerInteractionBehavior = currentBehavior;
-        AIStateInterrupted();
-    }
+    //PlayerInteractionBehavior currentBehavior = GetCurrentPlayerInteractionBehavior(detectionHit);
+    //
+    //if (currentBehavior != m_PlayerInteractionBehavior)
+    //{
+    //    m_PlayerInteractionBehavior = currentBehavior;
+    //    AIStateInterrupted();
+    //}
 }

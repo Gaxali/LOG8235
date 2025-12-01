@@ -28,7 +28,7 @@ void ASDTBaseAIController::Tick(float deltaTime)
 
     //if (m_ReachedTarget)
     //{
-    //    GoToBestTarget(deltaTime);
+        //GoToBestTarget(deltaTime);
     //}
     //else
     //{

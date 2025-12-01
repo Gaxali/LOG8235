@@ -7,6 +7,7 @@
 #include "EnvironmentQuery/EnvQueryManager.h"
 #include "EngineUtils.h" // for TActorIterator<>
 #include "SDTAIController.h"
+#include "SoftDesignTrainingMainCharacter.h"
 
 ASoftDesignTrainingGameMode::ASoftDesignTrainingGameMode()
 {
@@ -30,6 +31,12 @@ void ASoftDesignTrainingGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	if (AIControllersTacticalGroup.IsEmpty())
+		return;
+
+	if (!SoftPlayerController)
+		return;
+
 	//Update Tactical group
 	if (FVector::DistSquared(PlayerLKP, SoftPlayerController->GetPawn()->GetActorLocation()) > 250000.0)
 	{
@@ -47,6 +54,29 @@ void ASoftDesignTrainingGameMode::Tick(float DeltaSeconds)
 		DrawDebugSphere(npcWorld, npcHead, 20.0f, 32, FColor::Magenta);
 	}
 	// Your logic here
+}
+
+void ASoftDesignTrainingGameMode::RemoveFromGroupWhenDie(ASDTAIController* InstigatorAIController)
+{
+	if (InstigatorAIController)
+	{
+		InstigatorAIController->SetIsTargetPlayerSeen(false);
+		AIControllersTacticalGroup.Remove(InstigatorAIController);
+	}
+	
+}
+
+
+void ASoftDesignTrainingGameMode::PlayerPickUpPowerUp()
+{
+	for (ASDTAIController* AIController : AIControllersTacticalGroup)
+	{
+		AIController->SetIsTargetPlayerSeen(false);
+	}
+
+	AIControllersTacticalGroup.Empty();
+
+	//OnPlayerPowerUp.Broadcast(true);
 }
 
 void ASoftDesignTrainingGameMode::RunEQSForTacticalGroupCreation()
@@ -142,12 +172,16 @@ void ASoftDesignTrainingGameMode::OnQueryTacticalPositionsAttack(UEnvQueryInstan
 			// Remove it
 			Locations.RemoveAt(0);
 
-			AIController->TargetPos = Closest;
+			AIController->TActicalPos = Closest;
+			//AIController->m_ReachedTarget = 
+			AIController->AIStateInterrupted();
 			DrawDebugSphere(GetWorld(), Closest, 50.0f, 10, FColor::Blue, false, 0.5f);
 		}
 		else
 		{
-			AIController->TargetPos = AIPosition;
+			AIController->TActicalPos = AIPosition;
+			//AIController->m_ReachedTarget = 
+			AIController->AIStateInterrupted();
 		}
 		
 		AIController->SetIsTargetPlayerSeen(true);
@@ -158,6 +192,21 @@ void ASoftDesignTrainingGameMode::OnQueryTacticalPositionsAttack(UEnvQueryInstan
 
 void ASoftDesignTrainingGameMode::PlayerSeenByAI(ASDTAIController* InstigatorAIController)
 {
+	// Prevent creattion when the Bots are in flee mode. The raycast can still detect the player
+	// when moving to flee position
+
+	if (SoftPlayerController)
+	{
+		if (ASoftDesignTrainingMainCharacter* Player = Cast<ASoftDesignTrainingMainCharacter>(SoftPlayerController->GetCharacter()))
+		{
+			if (Player->IsPoweredUp())
+			{
+				//UE_LOG(LogTemp, Warning, TEXT("=== AIControllers ==="));
+				return;
+			}
+		}
+	}
+
 	if (AIControllersTacticalGroup.IsEmpty())
 	{
 		RunEQSForTacticalGroupCreation();
@@ -181,6 +230,7 @@ void ASoftDesignTrainingGameMode::PlayerSeenByAI(ASDTAIController* InstigatorAIC
 		//	}
 		//}
 	}
+
 }
 
 void ASoftDesignTrainingGameMode::StartPlay()

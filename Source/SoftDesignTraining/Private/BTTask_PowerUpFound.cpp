@@ -24,17 +24,13 @@ EBTNodeResult::Type UBTTask_PowerUpFound::ExecuteTask(UBehaviorTreeComponent& Ow
             return EBTNodeResult::Succeeded;
         }
 
-        //if (aiController->m_ReachedTarget)
-        //{
-        //    PowerUpAssigned = 0;
-        //}
-        //
-        //if (PowerUpAssigned == 1)
-        //{
-        //    return EBTNodeResult::Succeeded;
-        //}
+        if (OwnerComp.GetBlackboardComponent()->GetValue<UBlackboardKeyType_Bool>(aiController->GetTargetSeenKeyID()))
+        {
+            aiController->m_ReachedTarget = true;
+            return EBTNodeResult::Failed;
+        }
     }
-
+    
     while (foundCollectibles.Num() != 0)
     {
         int index = FMath::RandRange(0, foundCollectibles.Num() - 1);
@@ -45,24 +41,21 @@ EBTNodeResult::Type UBTTask_PowerUpFound::ExecuteTask(UBehaviorTreeComponent& Ow
 
         if (!collectibleActor->IsOnCooldown())
         {
-            //MoveToLocation(foundCollectibles[index]->GetActorLocation(), 0.5f, false, true, true, false, NULL, false);
-            //OnMoveToTarget();
             auto pos = foundCollectibles[index]->GetActorLocation();
             UE_LOG(LogTemp, Warning, TEXT("Position: X=%f  Y=%f  Z=%f"), pos.X, pos.Y, pos.Z);
             OwnerComp.GetBlackboardComponent()->SetValueAsVector("TargetPos", foundCollectibles[index]->GetActorLocation());
-            //        return EBTNodeResult::Succeeded;
             
-            if (ASDTAIController* aiController = Cast<ASDTAIController>(OwnerComp.GetAIOwner()))
-                aiController->OnMoveToTarget();
-
-            //PowerUpAssigned = 1;
-
             return EBTNodeResult::Succeeded;
         }
         else
         {
             foundCollectibles.RemoveAt(index);
         }
+    }
+
+    if (ASDTAIController* aiController = Cast<ASDTAIController>(OwnerComp.GetAIOwner()))
+    {
+        aiController->m_ReachedTarget = true;
     }
 
     return EBTNodeResult::Failed;

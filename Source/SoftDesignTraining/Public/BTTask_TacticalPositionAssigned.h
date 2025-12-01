@@ -16,5 +16,5 @@ class SOFTDESIGNTRAINING_API UBTTask_TacticalPositionAssigned : public UBTTaskNo
 
 	EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory);
 
-	
+	int TacticalPosAssigned = 0;
 };

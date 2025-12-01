@@ -74,7 +74,7 @@ public:
 
     void GetHightestPriorityDetectionHit(const TArray<FHitResult>& hits, FHitResult& outDetectionHit);
     void UpdatePlayerInteractionBehavior(const FHitResult& detectionHit, float deltaTime);
-    PlayerInteractionBehavior GetCurrentPlayerInteractionBehavior(const FHitResult& hit);
+    //PlayerInteractionBehavior GetCurrentPlayerInteractionBehavior(const FHitResult& hit);
     bool HasLoSOnHit(const FHitResult& hit);
     void MoveToRandomCollectible();
     void MoveToPlayer();
@@ -93,8 +93,14 @@ public:
     UFUNCTION()
     void SetIsTargetPlayerSeen(bool IsPlayerSeen) { m_IsPlayerDetected = IsPlayerSeen; }
 
+    UFUNCTION()
+    void ShouldGoToFleeLocation(bool GoToFleeLocation);
+
     bool m_ReachedTarget;
+    //bool m_ShouldGoToFleeLocation;
+
     FVector TargetPos;
+    FVector TActicalPos;
 
 private:
     virtual void GoToBestTarget(float deltaTime) override;
@@ -113,7 +119,7 @@ protected:
 
 private:
 
-    bool m_IsPlayerDetected = false;
+    bool m_IsPlayerDetected;
 
     UPROPERTY(transient)
     UBehaviorTreeComponent* m_behaviorTreeComponent;
