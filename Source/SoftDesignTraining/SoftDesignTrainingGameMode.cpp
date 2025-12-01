@@ -56,6 +56,17 @@ void ASoftDesignTrainingGameMode::Tick(float DeltaSeconds)
 	// Your logic here
 }
 
+void ASoftDesignTrainingGameMode::RemoveFromGroupWhenDie(ASDTAIController* InstigatorAIController)
+{
+	if (InstigatorAIController)
+	{
+		InstigatorAIController->SetIsTargetPlayerSeen(false);
+		AIControllersTacticalGroup.Remove(InstigatorAIController);
+	}
+	
+}
+
+
 void ASoftDesignTrainingGameMode::PlayerPickUpPowerUp()
 {
 	for (ASDTAIController* AIController : AIControllersTacticalGroup)

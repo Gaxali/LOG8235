@@ -26,6 +26,8 @@ public:
 	
 	void PlayerPickUpPowerUp();
 
+	void RemoveFromGroupWhenDie(ASDTAIController* InstigatorAIController);
+
 	//UPROPERTY(BlueprintAssignable)
 	//FOnTacticalChanged OnPayerSeenChange;
 

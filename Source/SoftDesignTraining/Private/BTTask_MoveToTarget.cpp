@@ -13,13 +13,16 @@ EBTNodeResult::Type UBTTask_MoveToTarget::ExecuteTask(UBehaviorTreeComponent& Ow
 
     if (ASDTAIController* aiController = Cast<ASDTAIController>(OwnerComp.GetAIOwner()))
     {
-        if (!aiController->InAir)
-        {
-            targetPosition = OwnerComp.GetBlackboardComponent()->GetValue<UBlackboardKeyType_Vector>(aiController->GetTargetPosBBKeyID());
+        aiController->FinalTargetPosForMoveTo = OwnerComp.GetBlackboardComponent()->GetValue<UBlackboardKeyType_Vector>(aiController->GetTargetPosBBKeyID());
+        aiController->OnMoveToTarget();
 
-            UAIBlueprintHelperLibrary::SimpleMoveToLocation(aiController, targetPosition);
+        //if (!aiController->InAir)
+        //{
+        //    targetPosition = OwnerComp.GetBlackboardComponent()->GetValue<UBlackboardKeyType_Vector>(aiController->GetTargetPosBBKeyID());
 
-        }
+         //   UAIBlueprintHelperLibrary::SimpleMoveToLocation(aiController, targetPosition);
+
+        //}
 
         return EBTNodeResult::Succeeded;
     }
